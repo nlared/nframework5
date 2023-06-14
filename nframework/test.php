@@ -21,12 +21,7 @@ function return_bytes($val) {
 
 
 $inipath=php_ini_loaded_file();
-
-
 $archivo=file_get_contents($inipath);
-
-
-
 date_default_timezone_set('America/Monterrey');
 $exts=get_loaded_extensions();
 if(ini_get('display_errors')){
@@ -47,7 +42,6 @@ $apts=[];
 if(!in_array('mongodb',$exts)){
 	$apts[]= "php$phpver-mongodb";
 }
-
 if(!in_array('intl',$exts)){
 		$apts[]= "php$phpver-intl";
 }
@@ -57,11 +51,9 @@ if(!in_array('gd',$exts)){
 if(!in_array('curl',$exts)){
 		$apts[]= "php$phpver-curl";
 }
-
 if(!in_array('pdo_sqlite',$exts)){
 		$apts[]= "php$phpver-sqlite";
 }
-
 if(!in_array('zip',$exts)){
 		$apts[]= "php$phpver-zip";
 }
@@ -71,7 +63,6 @@ if(!in_array('mongodb',$exts)){
 if(!in_array('mbstring',$exts)){
 		$apts[]= "php$phpver-mbstring";
 }
-
 if(!in_array('libxml',$exts)){
 		$apts[]= "php$phpver-xml";
 }

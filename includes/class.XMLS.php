@@ -1,9 +1,12 @@
 <?
-class XMLS{
+class XMLS implements ArrayAccess{
 	public $tagName;
 	public $className;
 	public $attributes=[];
 	public $addattributes;
+	public $containervar = '';
+	public $_sequence;
+
 	public function __construct($ops=[]){
 	    $this->className=get_class($this);
 	    foreach($ops as $op=>$val){
@@ -11,7 +14,9 @@ class XMLS{
 	    		$this->{$op}=$val;
 	    	}
 	    }
-	    
+	    if (!empty($this->containervar)){
+	    	$this->{$this->containervar} =[];
+	    }
 	}
 	function encodeespecial($strvalor) {
 	/*    $strvalor = str_replace("&", "&amp;", $strvalor);
@@ -30,24 +35,39 @@ class XMLS{
 		$attributes=[];
 		$elements=[];
 		$data=get_object_vars($this);
+		$specialvars=[
+			'attributes',
+			'className',
+			'tagName',
+			'addattributes',
+			'containervar',
+			'_sequence'
+		];
 		foreach($data as $n=>$v){
-			if($n!='attributes' && $n!="className"&&$n!='tagName'&&$n!='addattributes'){
+			if(!in_array($n,$specialvars)){
 			 	if(in_array($n,$this->attributes)){
 			 		if($this->{$n}!=''){
 			 			$attributes[]=$n.'="'.$this->encodeespecial($this->{$n}).'"';
 			 		}
 			 	}else{
 			 		if($this->{$n}!=''){
-			 			$elements[]=(is_array($this->{$n})?implode("\n",$this->{$n}) :$this->{$n});
+			 			if(empty($this->_sequence)){
+			 				$elements[]=(is_array($this->{$n})?implode("\n",$this->{$n}) :$this->{$n});
+			 			}else{
+			 				$elements[array_search($n,$this->_sequence)]=(is_array($this->{$n})?implode("\n",$this->{$n}) :$this->{$n});
+			 			
+			 			}
 			 		}
 			 	}
 			}
 		}
+		ksort($elements, SORT_NUMERIC);
+		
 		
 		return '<'.$this->tagName.($this->addattributes!=''?' '.$this->addattributes :'').
 		(count($attributes)>0?' '. implode(' ',$attributes):'').
 		(count($elements)>0? '>
-'.implode("\n",$elements) .'
+'.implode("\n",$elements).'
 </'.$this->tagName.'>' :'/>');
 		
 	}
@@ -86,4 +106,26 @@ class XMLS{
 			}
 		}
 	}
+
+   
+
+    public function offsetSet($offset, $valor) :void{
+        if (is_null($offset)) {
+            $this->{$this->containervar}[] = $valor;
+        } else {
+            $this->{$this->containervar}[$offset] = $valor;
+        }
+    }
+
+    public function offsetExists($offset):bool {
+        return isset($this->{$this->containervar}[$offset]);
+    }
+
+    public function offsetUnset($offset):void {
+        unset($this->{$this->containervar}[$offset]);
+    }
+
+    public function offsetGet($offset):mixed {
+        return isset($this->{$this->containervar}[$offset]) ? $this->{$this->containervar}[$offset] : null;
+    }
 }

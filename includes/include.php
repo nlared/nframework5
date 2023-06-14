@@ -212,7 +212,7 @@ class class_nframework{
 		if(empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
 			$_SESSION['nf']['browser']['language']='en-US';
 		}else{
-			$_SESSION['nf']['browser']['language']=	$languages[Locale::lookup(array_keys($languages), $_SERVER['HTTP_ACCEPT_LANGUAGE'], true, 'en_US')];
+			$_SESSION['nf']['browser']['language']=	$languages[Locale::lookup(array_keys($languages), $_SERVER['HTTP_ACCEPT_LANGUAGE'], true, 'en-US')];
 		}
 		$_SESSION['nf']['Anti-CSRF']=uniqid();
 		

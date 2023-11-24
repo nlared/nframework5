@@ -1,11 +1,11 @@
 <?
 class XMLS implements ArrayAccess{
-	private $tagName;
-	private $className;
-	private $attributes=[];
-	private $addattributes;
-	private $containervar = '';
-	private $_sequence;
+	public $tagName;
+	public $className;
+	public $attributes=[];
+	public $addattributes;
+	public $containervar = '';
+	public $_sequence;
 
 	public function __construct($ops=[]){
 	    $this->className=get_class($this);

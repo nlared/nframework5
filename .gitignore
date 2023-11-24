@@ -1,3 +1,5 @@
 /includes/vendor/*
 /includes/config.php
+/includes/composer.lock
+/includes/composer.phar
 *.log

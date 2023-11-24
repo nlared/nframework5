@@ -44,10 +44,10 @@ if ($nframework->isAjax()) {
     }
     if ($_POST['op']=='password') {
     	$dataset->password=hash('sha512', $_POST['password']);
-            $result=[
-                'error'=>'',
-                'js'=>'alert("Contraseña cambiada")'
-            ];
+        $result=[
+            'error'=>'',
+            'js'=>'alert("Contraseña cambiada");'
+        ];
     }
 } else {
 	$nframework->usecommon=true;
@@ -73,7 +73,7 @@ if ($nframework->isAjax()) {
 	        'last_accessed','_id'
 	    ],
 	    'columnDefs'=>[
-			'1'=>['render'=>"'<a href=\"databindingajax.php?_id='+data+'\" class=\"button\"><span class=\"mif-pencil\"></span></a><a href=\"javascript:removeid(\\''+data+'\\');\" class=\"button\"><span class=\"mif-cross\"></span></a>'"],// data $row[0]
+			'1'=>['render'=>"'<a href=\"session_data.php?_id='+data+'\" class=\"button\"><span class=\"mif-eye\"></span></a><a href=\"javascript:removeid(\\''+data+'\\');\" class=\"button\"><span class=\"mif-cross\"></span></a>'"],// data $row[0]
 		]
 	]);
 	
@@ -85,32 +85,40 @@ if ($nframework->isAjax()) {
 	<?=secureform()?>
 		<div class="grid">
 			<div class="row">
-				<div class="cell"><?=$username?></div>
+				<div class="cell col"><?=$username?></div>
 			</div>
 			<div class="row">
-				<div class="cell"><?=$permisos?></div>
+				<div class="cell col"><?=$permisos?></div>
 			</div>
 			<div class="row">
-				<div class="cell-md-2 offset-md-6"><a href="#" onclick="Metro.dialog.open('#demoDialog1')" class="button primary w-100"><span class="mif-lock"></span>&nbsp;Cambiar contraseña</a></div>
-				<div class="cell-md-2"><a href="./" class="button primary w-100"><span class="mif-exit"></span>&nbsp;Cerrar</a></div>
-				<div class="cell-md-2"><button class="button secureop success w-100" value="save"><span class="mif-floppy-disk"></span>&nbsp;Guardar</button></div>
+				<div class="cell-md-2 col offset-md-6"><a href="#" onclick="dialogpass_open();" class="btn btn-primary button primary w-100" data-toggle="modal" data-target="#demoDialog1" ><span class="mif-lock"></span>&nbsp;Cambiar contraseña</a></div>
+				<div class="cell-md-2 col"><a href="./" class="button primary btn btn-primary w-100"><span class="mif-exit"></span>&nbsp;Cerrar</a></div>
+				<div class="cell-md-2 col"><button class="button btn btn-success secureop success w-100" value="save"><span class="mif-floppy-disk"></span>&nbsp;Guardar</button></div>
 			</div>
 		</div>
 	</form>
 	<?=$datatable?>
 	</div>
-	<div class="dialog" data-role="dialog" id="demoDialog1">
+	<dialog id="dialogPass">
 	    <div class="dialog-title">Cambio de contraseña</div>
 	    <div class="dialog-content">
 	        <?=$password?>
 	    </div>
 	    <div class="dialog-actions">
-	    	<button class="button js-dialog-close">Cancelar</button>
-	        <button class="button js-dialog-close primary" onclick="cambiar();">Cambiar</button>
+	    	<button class="button success btn btn-success" onclick="dialogpass_close();">Cancelar</button>
+	        <button class="button primary btn btn-primary" onclick="cambiar();">Cambiar</button>
 	    </div>
-	</div>
+	</dialog>
 </div>
 <script>
+	const dialogpass = document.querySelector("#dialogPass");
+	function dialogpass_open(){
+		dialogpass.showModal();
+	}
+	function dialogpass_close(){
+		dialogpass.close();
+	}
+	
 	function cambiar(){
 		$.ajax({
 			url: 'user.php?_id=<?=$dataset->_id?>',
@@ -120,7 +128,7 @@ if ($nframework->isAjax()) {
 				password:$('#password').val()
 			},
 			success: function(respuesta){
-				console.log(respuesta);
+				nAjaxFormDone(respuesta);
 			},
 			error: function() {
 		        console.log("No se ha podido obtener la información");

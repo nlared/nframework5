@@ -11,7 +11,43 @@ $twig = new \Twig\Environment($loader, [
 
 use Intervention\Image\ImageManager;
 //https://github.com/alexdodonov/mezon-router#routing--
+
+
 $router = new \Mezon\Router\Router();
+
+$router->addRoute('index', function($route, $variables){
+	global $_SERVER,$twig,$nframework,$config,$m;
+	
+	$header=$m->{$config['sitedb']}->pages->findOne(['path'=>'_header']);
+	$footer=$m->{$config['sitedb']}->pages->findOne(['path'=>'_footer']);
+	$parallax=$m->{$config['sitedb']}->pages->findOne(['path'=>'_parallax']);
+	$menu=$m->{$config['sitedb']}->menus->findOne(['name'=>'_nav']);
+	
+	$nframework->usecommon=true;
+	$template = $twig->load('page.html');
+	
+	if($config['homepagetype']=='page'){
+		$page=$m->{$config['sitedb']}->pages->findOne(['path'=>'_home']);
+		$nframework->metas['description']=$page->description;
+		$nframework->metas['title']=$page->title;
+		$nframework->metas['keywords']=$page->keywords;
+			
+	}else{
+		
+	}
+	
+	echo $template->render([
+		'theme'=>$config['theme'],
+		'parallaxpage' =>$parallax?->html,
+		'page' =>$page->html,
+		'header'=>$header->html,
+		'footer'=>$footer->html,
+		'menu'=>$menu->code,
+		'route'=>'index.php'
+	]);
+},'GET');
+
+
 $router->addRoute('/main.js', function(string $route,array $p){
 	global $twig,$config;
 	 header('Content-Type: text/javascript; charset=utf-8');
@@ -19,7 +55,7 @@ $router->addRoute('/main.js', function(string $route,array $p){
 	echo $template->render([
 		'publicKey' => $config['notifications']['publicKey']
 	]);
-});
+},'GET');
 //TODO:favicon.ico
 
 
@@ -55,26 +91,34 @@ $router->addRoute('/sitemap.xml', function($route, $variables){
 '.implode("\n",$urls).'
 
 </urlset>';	
-});
-
-
-
-
-
+},'GET');
 
 
 $router->addRoute('/.well-known/acme-challenge/[s:filename]', function($route, $variables){
 	global $m,$config;
-	
-	
-    $client = new Api($config->letsencrypt['email'], __DIR__ . '/__account');
+    $client = new Api($config->letsencrypt_email, __DIR__ . '/__account');
     $account = $client->account()->get();
-    
-	$validationData = $client->domainValidation()->getFileValidationData($validationStatus);
+
+	
+	try {
+    	$client->domainValidation()->start($account, $validationStatus[0], AuthorizationChallengeEnum::HTTP);
+    	$privateKey = \Rogierw\RwAcme\Support\OpenSsl::generatePrivateKey();
+		$csr = \Rogierw\RwAcme\Support\OpenSsl::generateCsr(['example.com'], $privateKey);
+		if ($order->isReady() && $client->domainValidation()->allChallengesPassed($order)) {
+    		$client->order()->finalize($order, $csr);
+		}
+		if ($order->isFinalized()) {
+		   $certificateBundle = $client->certificate()->getBundle($order);
+		}
+		$config->letsencryptvalidtruh=strtotime('+90 days');
+		
+
+	} catch (DomainValidationException $exception) {
+	    // The local HTTP challenge test has been failed...
+	}
 	foreach($validationData as $vd){
 		if($vd['identifier']==$_SERVER['HTTP_HOST']&&$vd['filename']==$variables['filename']){
 			echo $vd['content'];
-		
 			exit();
 		}
 	}
@@ -100,7 +144,7 @@ $router->addRoute('/images/config/[i:size]/logo.png', function(string $route,arr
 	header('Content-Length: '.filesize($dst));
     header('Content-Type: image/png');
     echo file_get_contents($dst);
-});
+},'GET');
 $router->addRoute('/images/config/[i:w]/[i:h]/logo.png', function(string $route,array $p){
 	global $m,$config;
 	$dir='img/nf/config/';
@@ -120,7 +164,7 @@ $router->addRoute('/images/config/[i:w]/[i:h]/logo.png', function(string $route,
 	header('Content-Length: '.filesize($dst));
     header('Content-Type: image/png');
     echo file_get_contents($dst);
-});
+},'GET');
 
 $router->addRoute('/images/resize/[s:id]/[i:w]/[i:h]/[s:file]', function(string $route,array $p){
 	if(isset($_SESSION['imagesresize'][$p['id']])){
@@ -151,7 +195,7 @@ $router->addRoute('/images/resize/[s:id]/[i:w]/[i:h]/[s:file]', function(string 
 	    header('Content-Type: image/png');
 	    echo file_get_contents($dst);//*/
 	}
-});
+},'GET');
 
 
 
@@ -221,7 +265,7 @@ echo '{
 }';
 //72, 96, 144, 192, 256, 384, 512
 
-});
+},'GET');
 
 $router->addRoute('/getPayload', function(string $route,array $p){
 	global $m,$config;
@@ -244,7 +288,7 @@ $router->addRoute('/privacidad', function(string $route,array $p){
 	global $nframework,$twig,$config;
 	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'Privacidad']);
 	echo $page['html'];
-});
+},'GET');
 
 $router->addRoute('/sw.js', function(string $route,array $p){
 	global $nframework,$twig,$config;
@@ -256,7 +300,7 @@ $router->addRoute('/sw.js', function(string $route,array $p){
 		'csss'=>implode ("','",$nframework->csss),
 		'jss'=>implode ("','",$nframework->jss)
 	]);
-});
+},'GET');
 
 foreach($m->{$config['sitedb']}->pages->distinct('path') as $d){
 	if(!empty($d)){
@@ -284,5 +328,11 @@ foreach($m->{$config['sitedb']}->pages->distinct('path') as $d){
 		}, 'GET'); // this handler will be called for POST requests
 	}
 }
-
-
+$router->addRoute('/cachetest.png', function($route,$arg){
+	global $m;
+	//$developermode=true;
+	$cache=new cache(__DIR__.'/profilepict.png');
+	$cache->contentType='image/png';
+	$cache->cache();
+	
+});

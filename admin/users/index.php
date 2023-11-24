@@ -20,7 +20,7 @@ $datatable->Ajax([
         'username','_id',
     ],
     'columnDefs'=>[
-		'1'=>['render'=>"'<a href=\"user.php?_id='+data+'\" class=\"button\"><span class=\"mif-pencil\"></span></a><a href=\"javascript:eliminar(\''+data+'\')\" class=\"button\"><span class=\"mif-cross\"></span</a>'"],
+		'1'=>['render'=>"'<a href=\"user.php?_id='+data+'\" class=\"button primary btn btn-primary\"><span class=\"bi bi-pencil mif-pencil\"></span></a><a href=\"javascript:eliminar(\''+data+'\')\" class=\"button alert btn btn-danger \"><span class=\"bi-trash mif-cross\"></span</a>'"],
 	]
 ]);
 
@@ -34,7 +34,7 @@ if ($nframework->isAjax()) {
 <div class="container p-5">
 	<div class="bg-cyan fg-white p-5"><h2>Usuarios</h2></div>
 	<div class="bg-white p-5">
-		<a href="user.php" class="button"><span class="mif-user-plus"></span>&nbsp;Nuevo</a>
+		<a href="user.php" class="button primary btn btn-primary"><span class="mif-user-plus bi-person-add"></span>&nbsp;Nuevo</a>
 		<?=$datatable;?>
 	</div>
 </div>

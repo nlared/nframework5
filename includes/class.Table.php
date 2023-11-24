@@ -36,13 +36,17 @@ class Table{
 		foreach ($options as $option => $value) {
     		$this->{$option}=$value;	        
         }
+        
+        $nframework->csss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.css';
+        $nframework->jss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js';
+        
         //$nframework->jss['002']='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js';
 	    //$nframework->jss['060']='https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js';
 		//$nframework->csss['060']='https://cdn.datatables.net/v/dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.7/sc-2.0.3/datatables.min.css';
 		//$nframework->jss['060']='https://cdn.datatables.net/v/dt/dt-1.10.23/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.7/sc-2.0.3/datatables.min.js';
 		
 		//	
-        if($this->id==''){
+        if(empty($this->id)){
         	$this->id='DataTables_Table_'.$nframework->counters('table');
         }
        
@@ -91,7 +95,7 @@ class Table{
         $class[]=$this->addclass;
         
         $columnDefss=[];
-        $result='<table id="'.$this->id.'" class="table '.implode(' ',$class).' display'.
+        $result='<table id="'.$this->id.'" class=" '.implode(' ',$class).' display'.
         	($this->responsive?' responsive':'').
         	($this->nowrap?' nowrap':'').
         		'" data-role="'.$this->role.'"'.

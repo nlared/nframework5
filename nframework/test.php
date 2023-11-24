@@ -1,7 +1,7 @@
 <?php
 /*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);*/
+error_reporting(E_ALL);//*/
 $errores=[];
 function return_bytes($val) {
     $val = trim($val);
@@ -155,7 +155,10 @@ if($config['sitedb']==''){
 			]);
 		}
 		
-		
+		$m->{$config['sitedb']}->sessions->createIndex(['last_accessed'=>1]);	
+		$m->{$config['sitedb']}->users->createIndex(['username'=>1]);	
+		$m->{$config['sitedb']}->pages->createIndex(['path'=>1]);
+		$m->{$config['sitedb']}->usergroups->createIndex(['name'=>1]);
 	} catch (Exception $e) {
 	   $errores[]= 'Excepción capturada: '.  $e->getMessage();
 	}

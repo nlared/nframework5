@@ -240,7 +240,7 @@ class inputText extends baseInput {
     public $maskpattern;
     public $pattern;
     public $inputtype;
-    public $addclass;
+    public $addclass='form-control';
     public $type;
     public $uppercase;
     public $invalid_feedbak;
@@ -265,10 +265,16 @@ class inputText extends baseInput {
     }
 
     public function __toString() {
+    	global $config;
     	if($this->pattern!=''){
     		$_SESSION['ANTIXSS'][$this->id]=[FILTER_VALIDATE_REGEXP,['options' => ['regexp' => '/' . $this->pattern . '/']]];
     	}
-        return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'')
+    	
+    	
+        return 
+        ($config['usebootstrap']?
+        '<label for="'.$this->id.'" class="form-label">'.$this->caption.'</label> <div class="input-group">'
+        :'<div class="form-group">'. ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':''))
         .($this->infobox!=''?'&nbsp;<span class="mif-question nfinfoicon fg-red" content="'.htmlentities($this->infobox,ENT_QUOTES).'"></span>':'')
         .'<input  name="' .$this->name . '" id="' . $this->id . '"' .
             ' value="' . htmlspecialchars($this->value??'') . '"' .
@@ -294,7 +300,7 @@ class inputText extends baseInput {
             ($this->placeholder ? ' placeholder="' . $this->placeholder . '"' : '') .              
             ($this->pattern ? ' pattern="' . $this->pattern . '"' : '') . $this->writetags().            
         	' data-validate="'.$this->data_validate().'" autocomplete="'.$this->autocomplete.'">'.
-        	($this->invalid_feedback!=''?'<span class="invalid_feedback">'.$this->invalid_feedback.'</span>':'');
+        	($this->invalid_feedback!=''?'<span class="invalid_feedback">'.$this->invalid_feedback.'</span>':'').'</div>';
             
             /*
 				data-role="materialinput" OK
@@ -349,6 +355,7 @@ class inputNumber extends baseInput {
 	}
 	
     public function __toString() {
+    	global $config;
     	if($this->validate==''){
     		$this->validate="number"; //integer,float 
     	}
@@ -369,8 +376,11 @@ class inputNumber extends baseInput {
     		];
     	}
     	
-        return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').
-        ($this->infobox!=''?'&nbsp;<span class="mif-question nfinfoicon fg-red" content="'.htmlentities($this->infobox,ENT_QUOTES).'"></span>':'')
+        return
+        ($config['usebootstrap']?
+        '<label for="'.$this->id.'" class="form-label">'.$this->caption.'</label> <div class="input-group">'
+        :'<div class="form-group">'. ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':''))
+        .($this->infobox!=''?'&nbsp;<span class="mif-question nfinfoicon fg-red" content="'.htmlentities($this->infobox,ENT_QUOTES).'"></span>':'')
         .'<input type="number" data-role="input" id="'.$this->id.
 			'" name="' . $this->name .
 			'"' . $this->writetags() .
@@ -379,10 +389,10 @@ class inputNumber extends baseInput {
 			($this->required ? ' required="required"' : '') .
 			($this->readonly ? ' readonly="readonly"' : '') .
 			($this->disabled ? ' disabled' : '') . 
-			($this->addclass ? ' class="'.$this->addclass.'"' : '') .
+			' class="form-control '.$this->addclass.'"'.
 			($this->prependicon?' data-prepend="<span class=\'mif-'.$this->prependicon. '\'></span>"':'') .
             ($this->placeholder ? ' placeholder="' . $this->placeholder . '"' : '') . 
-			' autocomplete="off">';
+			' autocomplete="off"></div>';
     }
 	public function is_valid($newval) {
 		return is_numeric($newval);	
@@ -465,11 +475,14 @@ class inputDate extends baseInput {
 		//add $ to final of regex
 		$_SESSION['ANTIXSS'][$this->id]=[FILTER_VALIDATE_REGEXP,["options"=>["regexp"=>"/^$tmp/"]]];
     return 
-           ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').
+            ($config['usebootstrap']?
+        	'<label for="'.$this->id.'" class="form-label">'.$this->caption.'</label> <div class="input-group">'
+        	:'<div class="form-group">'. ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'')).
            ($this->infobox!=''?'&nbsp;<span class="mif-question nfinfoicon fg-red" content="'.htmlentities($this->infobox,ENT_QUOTES).'"></span>':'')
-        	.'<input type="text" name="' . $this->name . '" id="' . $this->id . '" data-role="'.$this->type.'" 
-            class="mx-auto " 
+        	.'<input type="date" name="' . $this->name . '" id="' . $this->id . '" data-role="input" 
+            class="mx-auto form-control" 
             data-format="'.$this->format.'"
+            data-date-format="'.$this->format.'"
             data-input-format="'.$this->format.'" 
             data-validate="'.$this->data_validate().'"'.
            	($this->required ? ' required="required"' : '') .
@@ -479,7 +492,7 @@ class inputDate extends baseInput {
 			($this->clearbutton ? ' data-clear-button="true"' : '').
 			($this->prependicon?' data-prepend="<span class=\'mif-'.$this->prependicon. '\'></span>"':'') .
            $this->addtags . ' '.($this->type=="datepicker"?'data-':' ').'value="' . $this->value 
-           . '" autocomplete="off">';
+           . '" autocomplete="off"></div>';
     }
     public function is_valid($date) {
     	$d = DateTime::createFromFormat(str_replace('%','',$this->format), $date);
@@ -493,7 +506,7 @@ class inputTime extends baseInput {
 			$this->type='timepicker';
 		}
     return 
-           '<input type="text" name="' . $this->name . '" id="' . $this->id . '" data-role="'.$this->type.'" ' .
+           '<input type="time" name="' . $this->name . '" id="' . $this->id . '" data-role="input" ' .
            	($this->required ? ' required="required"' : '') .
 			($this->readonly ? ' readonly="readonly"' : '') .
 			($this->disabled ? ' disabled' : '') .
@@ -517,16 +530,16 @@ class inputTime extends baseInput {
 class inputDateTime extends baseInput {
     public function __toString() {
     	global $nframework;
-    	$nframework->csss['099dtime']='//cdn.nlared.com/jquery-datetimepicker/build/jquery.datetimepicker.min.css';
+    	//$nframework->csss['099dtime']='//cdn.nlared.com/jquery-datetimepicker/build/jquery.datetimepicker.min.css';
     	 return 
     	 ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').
-    	 '<input name="' . $this->name . '" id="' . $this->id . '" type="text" data-role="input"' .
+    	 '<input name="' . $this->name . '" id="' . $this->id . '" class="form-control" type="datetime-local" data-role="input"' .
         	($this->required ? ' required="required"' : '') .
 			($this->readonly ? ' readonly="readonly"' : '') .
 			($this->disabled ? ' disabled' : '') .  
 			' data-validate="'.$this->data_validate().'"'.
         $this->addtags . ' value="' . $this->value 
-        . '" data-clear-button="false" data-custom-buttons="customCalendarButton" autocomplete="off"/>';
+        . '" data-clear-button="false"  autocomplete="off"/>';
     }
 }
 class inputRte extends baseInput {
@@ -607,7 +620,6 @@ class textArea extends baseInput {
 	var $charscountertemplate;
     public function __toString() {
     	$_SESSION['ANTIXSS'][($this->id)]=['html'];
-    	
         return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').'<textarea data-role="textarea" name="' .
         $this->name . '" id="' . $this->id . '"' . $this->addtag .
     	($this->required ? ' required="required"' : '') .
@@ -619,10 +631,8 @@ class textArea extends baseInput {
 		($this->prependicon?' data-prepend="<span class=\'mif-'.$this->prependicon. '\'></span>"':'') .
 		($this->charscounter!='' ? ' data-chars-counter="'.$this->charscounter.'"' : '') .
 		($this->charscountertemplate!='' ? ' data-chars-counter-template="'.$this->charscountertemplate.'"' : '') .  
-			
 		($this->disabled ? ' disabled' : '') .            
         '>' .htmlentities($this->value) . '</textarea>';
-       
     }
 }
 class AutoformList extends baseInput {
@@ -654,7 +664,6 @@ function nflistoptions($options,$selected=[]):String{
 			$result.= '<optgroup label="'.$value.'">'.nflistoptions($text,$selected).'</optgroup>';
 		}else{
 			$result.='<option value="' . $value . '"' .(in_array($value, $selected) ? ' selected>' : '>') . $text . '</option>';
-       
 			//$result.='<option value="' . $value . '"' . ($value == $selected ? ' selected>' : '>') . $text . '</option>';
 		}
 	}
@@ -709,7 +718,7 @@ class Select extends baseOptions {
             (!$this->datafilter?' data-filter="false"':'').
             ($this->placeholder?' data-filter-placeholder="'.$this->placeholder.'"':'').
 			' data-validate="'.$this->data_validate().'"'.
-            ($this->addclass? ' class="'.$this->addclass.'"':''). '>' .$result.'</select>'.
+            ' class="form-select" '.$this->addclass.'"'. '>' .$result.'</select>'.
         	($this->invalid_feedback!=''?'<span class="invalid_feedback">'.$this->invalid_feedback.'</span>':'');;
           
     }
@@ -803,16 +812,25 @@ class inputCheckBox extends baseInput {
     public $caption;
     public $type;
     public function __toString() {
+    	global $config;
        // $name=($this->dataset!=''?$this->dataset->nameprefix.'['.$this->name.']':$this->name);
         
         if ($this->type==''){
             $this->type='checkbox';
         }
-        return '<input name="' . $this->name . '" id="' . $this->id 
+        $result= '<input name="' . $this->name . '" id="' . $this->id 
                 . '" type="checkbox" data-role="'.$this->type.'" data-caption="'.$this->caption.'"' .
                 ($this->value != '' ? ' checked' : '').
                 ($this->disabled != '' ? ' disabled' : '').
                 $this->addtags . '>';
+                
+        if($config['usebootstrap'])       {
+        	$result='<div class="form-check">'.$result.'
+  <label class="form-check-label" for="'.$this->id.'">
+    '.$this->caption.'
+  </label>';	
+        }
+        return $result;
         $_SESSION['ANTIXSS'][$this->id]=[FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE];
         
     }

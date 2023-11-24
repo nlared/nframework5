@@ -29,7 +29,7 @@ $datatable->Ajax([
         'name','description','_id',
     ],
     'columnDefs'=>[
-		'2'=>['render'=>"'<a href=\"group.php?_id='+data+'\" class=\"button\"><span class=\"mif-pencil\"></span></a><a href=\"javascript:eliminar(\''+data+'\')\" class=\"button\"><span class=\"mif-cross\"></span</a>'"],
+		'2'=>['render'=>"'<a href=\"group.php?_id='+data+'\" class=\"button primary\"><span class=\"mif-pencil bi-pencil\"></span></a><a href=\"javascript:eliminar(\''+data+'\')\" class=\"button alert\"><span class=\"mif-cross bi-trash\"></span</a>'"],
 	]
 ]);
 	
@@ -41,7 +41,7 @@ $datatable->Ajax([
 <div class="container p-5">
 	<div class="bg-cyan fg-white p-5"><h2>Grupos</h2></div>
 	<div class="bg-white p-5">
-		<a href="group.php" class="button"><span class="mif-user-plus"></span>&nbsp;Nuevo</a>
+		<a href="group.php" class="button primary btn btn-primary"><span class="mif-users bi-people-fill"></span>&nbsp;Nuevo</a>
 		<?=$datatable;?>
 	</div>
 </div>

@@ -1,11 +1,11 @@
 <?
 class XMLS implements ArrayAccess{
-	public $tagName;
-	public $className;
-	public $attributes=[];
-	public $addattributes;
-	public $containervar = '';
-	public $_sequence;
+	private $tagName;
+	private $className;
+	private $attributes=[];
+	private $addattributes;
+	private $containervar = '';
+	private $_sequence;
 
 	public function __construct($ops=[]){
 	    $this->className=get_class($this);
@@ -30,6 +30,8 @@ class XMLS implements ArrayAccess{
 	    $strvalor = trim($strvalor);//*/
 	    return $strvalor;
 	}
+	
+	
 	
 	public function __toString(){
 		$attributes=[];

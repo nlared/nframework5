@@ -18,10 +18,18 @@ class Javas {
         if (!$this->flushed) {
             $this->flushed = true;
             
+            
+            
+  /*$("input[data-custom-buttons=\'customCalendarButton\']").datetimepicker({
+		format:\'Y-m-d H:i\',mask:false,lang:\'es\'
+	});*/
+            
+            
     		$js='
     		var nbacklink="/";
 '. $this->js['general'] . '
 var datatables=[];    
+var ajaxdialogs=[];
 function nfWindowResize() {
 '.$this->js['resize'].'
 };
@@ -59,7 +67,6 @@ function speak(text,callback){
 
 
 $(document).ready(function() {
-	
 	$.extend($.expr[\':\'], {
 	  \'containsi\': function(elem, i, match, array)
 	  {
@@ -73,11 +80,6 @@ $(document).ready(function() {
     }, false);
     
     $("input[data-role=\'spiner\']").spinner();
-    $("input[data-custom-buttons=\'customCalendarButton\']").datetimepicker({
-		format:\'Y-m-d H:i\',mask:false,lang:\'es\'
-	});
-   
-    
     $("div[data-role-aux=\'file-progress-bar\']").hide();
     $("input[data-sequential-uploads=\'true\']").each(function( index ) {
 		var mid=$(this).attr("id");
@@ -177,11 +179,17 @@ $(document).ready(function() {
 		
 	    e.preventDefault(); // avoid to execute the actual submit of the form.
 	});
-	$( ".secureop" ).click(function() {
+	$(".secureop").click(function() {
 		var op = $(this).closest("form").find("input[name=\"op\"]");
 		op.val($(this).val());
 	});
-   jQuery.datetimepicker.setLocale(\''.$nframework->langshort.'\');
+	 '. implode("\r\n",$nframework->javasonce). $this->js['ready'] . '
+});
+';
+
+/*
+
+jQuery.datetimepicker.setLocale(\''.$nframework->langshort.'\');
    $(\'.datetimepicker2date\').datetimepicker({
   timepicker:false,
   format:\'Y-m-d\',
@@ -193,9 +201,11 @@ $(document).ready(function() {
  },
 });
     $(".ui-spinner").addClass("w-100");
-    '. implode("\r\n",$nframework->javasonce). $this->js['ready'] . '
+   
 });
-';
+
+*/
+
 //$packer = new Tholu\Packer\Packer($js, 'Normal', true, false, true);
 //$packed_js = $packer->pack();
 return implode("\r\n",array_reverse($this->docend)).'

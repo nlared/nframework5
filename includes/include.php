@@ -15,6 +15,7 @@ if( php_sapi_name() != "cli"){
 }
 require 'vendor/autoload.php';
 
+
 function ifset($array,$key):mixed{
 	return isset($array[$key]) ? $array[$key] : null;
 }
@@ -85,6 +86,8 @@ class class_nframework{
 	public array $docend=[];
 	public bool $usecommon=false;
 	public String $include_path;
+	public String $body_addtag='';
+	public String $html_addtag='';
 	public function __construct(){
 		$this->include_path=__DIR__;
 		
@@ -110,57 +113,24 @@ class class_nframework{
 			
 			$this->csss['000']='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css';
 			$this->csss['004']='https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css';
-			
-			//$this->csss['002']='https://cdn.datatables.net/1.10.22/css/dataTables.jqueryui.min.css';
 			$this->csss['005rte']='https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css';
-			//$this->csss['010']='//cdn.nlared.com/mixcss.php?f='.implode(';',$mixcss[0]);
-			
-			$this->csss['010']='https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css';
-			//$this->csss['011']='https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css';
-			$this->csss['012']='https://cdn.datatables.net/responsive/2.3.0/css/responsive.dataTables.min.css';
-			
-			
 			$this->csss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.31.0/css/jquery.fileupload.min.css';
-		//	$this->csss['050']='https://cdnjs.cloudflare.com/ajax/libs/metro/4.4.3/css/metro-all.min.css';
-			$this->csss['050']='https://cdn.jsdelivr.net/gh/olton/Metro-UI-CSS@4.5.1/build/css/metro-all.min.css';
-//$this->csss['050']='https://raw.githubusercontent.com/olton/Metro5/master/lib/metro5.min.css';
-			
-			$this->csss['060']='https://cdn.datatables.net/responsive/2.3.0/css/responsive.jqueryui.min.css';
-		//	$this->csss['099']='https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css';
-			$this->csss['099']='https://cdn.nlared.com/jquery-datetimepicker/jquery.datetimepicker.min.css';
+			$this->csss['050']='https://cdn.metroui.org.ua/dev/metro.css';
+			$this->csss['051']='https://cdn.metroui.org.ua/dev/icons.css';
 			$this->csss['100']='https://cdn.nlared.com/nframework/4.5.0/nframework.min.css';
-	
-			
 			
 			$this->jss['000']='/main.js';
-			
 			$this->jss['001']='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.4.min.js';
 			$this->jss['002']='https://ajax.aspnetcdn.com/ajax/jquery.ui/1.13.2/jquery-ui.min.js';
-			
-			
 			$this->jss['003']='https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js';
 			$this->jss['004']='https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js';
-			//$this->jss['004']='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js';
-			//$this->jss['005']='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js';
-			$this->jss['008']='https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js';
-			
-			$this->jss['006']='https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js';
+			$this->jss['005']='https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js';
+			$this->jss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js';
 			$this->jss['007']='https://cdn.nlared.com/jquery-parallax/parallax.min.js';
 			$this->jss['008']='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js';
-		
 			$this->jss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.31.0/js/jquery.fileupload.min.js';
-		//	$this->jss['050']='https://cdnjs.cloudflare.com/ajax/libs/metro/4.4.3/js/metro.min.js';
-			$this->jss['050']='https://cdn.jsdelivr.net/gh/olton/Metro-UI-CSS@4.5.1/build/js/metro.min.js';
-		
-//$this->jss['050']='https://raw.githubusercontent.com/olton/Metro5/master/lib/metro5.min.js';
-		
-			//$this->jss['058']='https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js';
-			//$this->jss['059']='https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js';
-			$this->jss['060']='https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js';
-			//$this->jss['061']='https://cdn.datatables.net/responsive/2.2.6/js/responsive.jqueryui.min.js';
-			$this->jss['099']='https://cdn.nlared.com/jquery-datetimepicker/jquery.datetimepicker.full.min.js';
+			$this->jss['050']='https://cdn.metroui.org.ua/dev/metro.js';
 			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.0/nframework.min.js';
-			//$this->jss['101']='https://cdn.nlared.com/nframework/4.5.0/metro-es-MX.js';
 		}
 	}
 	public function getAuthorizationHeader():string{
@@ -217,6 +187,40 @@ class class_nframework{
 		$_SESSION['nf']['Anti-CSRF']=uniqid();
 		
 	}
+	
+	
+	
+	function excelOut($spreadsheet,$filename){
+		$writer = new Xlsx($spreadsheet);
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="'.$filename.'.xlsx"');
+		$writer->save('php://output');
+		
+	}
+	
+	function excelOutPdf($spreadsheet,$filename){
+		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Dompdf');
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
+		$writer->save('php://output');
+		
+	}
+	function wordOut($spreadsheet,$filename){
+		$writer = new Xlsx($spreadsheet);
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="'.$filename.'.xlsx"');
+		$writer->save('php://output');
+		
+	}
+	
+	function wordOutPdf($spreadsheet,$filename){
+		$writer =  \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Dompdf');
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
+		$writer->save('php://output');
+		
+	}
+	
 }
 $nframework=new class_nframework();
 require 'class.Base.php';
@@ -310,6 +314,12 @@ spl_autoload_register('nframework_autoload');
 if($config['cookie_domain']==''){
 	$config['cookie_domain']=$_SERVER['HTTP_HOST'];
 }
+if ($config['usebootstrap']){
+	
+	$nframework->csss['050']='https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous';
+	$nframework->csss['051']='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css';
+	$nframework->jss['050']='https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous';
+}	
 use Altmetric\MongoSessionHandler;
 $sessions = $m->{$config['sitedb']}->sessions;
 $handler = new MongoSessionHandler($sessions);
@@ -333,6 +343,9 @@ if (isset($_SESSION['user'])) {
         	header('location: /account/disabled.php');
         }else{
         	header('location: /'); // expulsar
+        }
+        if($user->in('developers')){
+        	$developermode=true;	
         }
     }
 } else {
@@ -457,7 +470,7 @@ function nfshutdown(){
 	header( 'X-XSS-Protection: 1;mode=block' );
 	header('Content-Type:text/html; charset=utf-8');
 	echo '<!DOCTYPE html>
-<html lang="'.$nframework->lang.'">
+<html lang="'.$nframework->lang.'"'.$nframework->html_addtag.'>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -494,7 +507,7 @@ function nfshutdown(){
 <title>' . $config['title'] .' '.$metas['title']. '</title>
     '.$csss.'
   </head>
-  <body>'
+  <body'.$nframework->body_addtag.'>'
   .$buffer.implode('',$nframework->docend).$jss.$javas.$javasstr.
   '</body>
 </html>';

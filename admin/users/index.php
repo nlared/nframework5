@@ -1,14 +1,14 @@
 <?php
 require '../common2.php';
 if(!$user->in('admins')){
-	exit();
+	//exit();
 }
 $datatable=new Table();
 $datatable->Ajax([
     'id'=>'testid',
     'db'=>$config['sitedb'],
     'collection'=>'users',
-    'header'=>'<th>Username</th><th>Opciones</th>',
+    'header'=>'<th>'.$nframework->language['username'].'</th><th>'.$nframework->language['options'].'</th>',
     'pipeline'=>[
     	[
     	'$match'=>[
@@ -32,9 +32,9 @@ if ($nframework->isAjax()) {
 	$nframework->usecommon=true;
 ?>
 <div class="container p-5">
-	<div class="bg-cyan fg-white p-5"><h2>Usuarios</h2></div>
+	<div class="bg-cyan fg-white p-5"><h2><?=$nframework->language['users']?></h2></div>
 	<div class="bg-white p-5">
-		<a href="user.php" class="button primary btn btn-primary"><span class="mif-user-plus bi-person-add"></span>&nbsp;Nuevo</a>
+		<a href="user.php" class="button primary btn btn-primary"><span class="mif-user-plus bi-person-add"></span>&nbsp;<?=$nframework->language['new']?></a>
 		<?=$datatable;?>
 	</div>
 </div>

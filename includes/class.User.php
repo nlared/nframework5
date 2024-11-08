@@ -4,6 +4,8 @@ class User implements ArrayAccess {
     public $info;
     private $m;
     private $db;
+    public $notifications;
+    
     function __construct($info) {
         global $m, $config;
         //$this->info=array('username'=>'guest');
@@ -30,6 +32,7 @@ class User implements ArrayAccess {
                 $this->info =(array) $this->m->{$config['sitedb']}->users->findOne(['username' => $_SESSION['user']]);
             }
         }
+        $this->notifications=new Notifications();
     }
    
     public function requireAuth(){
@@ -75,35 +78,76 @@ class User implements ArrayAccess {
     }
 
 	public function gravatar($width='',$height=''){
-		$_SESSION['images']['avatar'.$width.'x'.$height]=[
-			'src'=>$_SERVER['DOCUMENT_ROOT'].'/profiles/',
-			'dst'=>$_SERVER['DOCUMENT_ROOT'].'/profiles/mini/',
-			'width'=>$width,
-		];
-		return '/nframework/imagen.php?id=usermini&file='.$this->info['_id'].'.png';
+		return '/images/resize/users/32/32/'.$this->info['_id'].'.png';
 	}
 	
 
     public function usermenu() {
         global $themecolor,$config;
-		$_SESSION['images']['usermini']=[
-			'src'=>$_SERVER['DOCUMENT_ROOT'].'/profiles/',
-			'dst'=>$_SERVER['DOCUMENT_ROOT'].'/profiles/mini/',
-			'width'=>'32',
-			
-		];
+	
         
         
         $addtheme = ' ' . $themecolor;
         if($this->info['username'] != 'guest' &&$this->info['username']!=''){
+        	$bo='<!-- Start::header-element|main-profile-user -->
+                                <div class="header-element main-profile-user">
+                                    <!-- Start::header-link|dropdown-toggle -->
+                                    <a href="javascript:void(0);" class="header-link dropdown-toggle d-flex align-items-center"
+                                        id="mainHeaderProfile" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="me-2">
+                                            <img src="/images/resize/users/100/100/'.$this->info['_id'].'.png" alt="img" width="30"
+                                                height="30" class="rounded-circle">
+                                        </span>
+                                        <div class="d-xl-block d-none lh-1">
+                                            <h6 class="fs-13 font-weight-semibold mb-0">Json Taylor</h6>
+                                            <span class="op-8 fs-10">Web Designer 12</span>
+                                        </div>
+                                    </a>
+                                    <!-- End::header-link|dropdown-toggle -->
+                                    <ul class="dropdown-menu pt-0 overflow-hidden dropdown-menu-end mt-1"
+                                        aria-labelledby="mainHeaderProfile">
+                                        <li><a class="dropdown-item" href="/account/profile.php"><i
+                                                    class="ti ti-user-circle fs-18 me-2 op-7"></i>Profile</a></li>
+                                        <li><a class="dropdown-item" href="/"><i
+                                                    class="ti ti-inbox fs-18 me-2 op-7"></i>Home</a></li>
+                                        <li><a class="dropdown-item border-block-end" href="blog.html"><i
+                                                    class="ti ti-clipboard-check fs-18 me-2 op-7"></i>Posts &
+                                                Activities</a></li>
+                                        <li><a class="dropdown-item" href="/account/settings.php"><i
+                                                    class="ti ti-adjustments-horizontal fs-18 me-2 op-7"></i>Settings
+                                                & Privacy</a></li>
+                                        <li><a class="dropdown-item border-block-end" href="faq.html"><i
+                                                    class="ti ti-help fs-18 me-2 op-7"></i>Help Center</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider my-0">
+                                        </li>
+                                        <li><a class="dropdown-item" href="/account/register.php"><i
+                                                    class="ti ti-user-plus fs-18 me-2 op-7"></i>Add Another
+                                                Account</a></li>
+                                        <li><a class="dropdown-item" href="/account/logout.php"><i
+                                                    class="ti ti-power fs-18 me-2 op-7"></i>Sign Out</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider my-0">
+                                        </li>
+                                        <li class="d-flex justify-content-center p-2">
+                                            <span><a class="fs-12 px-2 border-end"
+                                                    href="javascript:void(0);">Privacy Policy</a></span>
+                                            <span><a class="fs-12 px-2 border-end"
+                                                    href="javascript:void(0);">Terms</a></span>
+                                            <span><a class="fs-12 px-2"
+                                                    href="javascript:void(0);">Cookies</a></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- End::header-element|main-profile-user -->';
           $result='
-        	<a href="#" class="app-bar-item">
-                        <img src="/nframework/imagen.php?id=usermini&file='.$this->info['_id'].'.png" class="avatar">
+        		<a href="#" class="app-bar-item">
+                        <img src="/images/resize/users/32/32/'.$this->info['_id'].'.png" class="avatar">
                         <span class="ml-2 app-bar-name">'.$this->info['nombres'].'</span>
                     </a>
                     <div class="user-block shadow-1" data-role="collapse" data-collapsed="true">
                         <div class="bg-darkCyan fg-white p-2 text-center">
-                            <img src="/nframework/imagen.php?id=usermini&file='.$this->info['_id'].'.png" class="avatar">
+                            <img src="/images/resize/users/120/120/'.$this->info['_id'].'.png" class="avatar">
                             <div class="h4 mb-0">'.$this->info['nombres'].'</div>
                             <div>'.$this->title.'</div>
                         </div>
@@ -229,12 +273,11 @@ class User implements ArrayAccess {
     		'info'=>$this->info
     		];
     }
-    public function offsetSet($name, $value) {
+    public function offsetSet(mixed $name, mixed $value) : void{
      switch ($name) {
             case 'username':
             case '_id':
-                return true;
-                break;
+               break;
             default:
                 if ($this->info[$name] != $value) {
                     $this->info[$name] = $value;
@@ -246,15 +289,14 @@ class User implements ArrayAccess {
         }
     }
     
-     public function offsetExists($name) {
+     public function offsetExists(mixed $name):bool {
       return isset($this->info[$name]);
     }
 
-    public function offsetUnset($name) {
+    public function offsetUnset(mixed $name):void {
         switch ($name) {
             case 'username':
             case '_id':
-                return true;
                 break;
             default:
                 unset($this->info[$name]);
@@ -264,7 +306,7 @@ class User implements ArrayAccess {
         }
     }
 
-    public function offsetGet($name) {
+    public function offsetGet(mixed $name): mixed {
         $result=null;
         switch ($name) {
             case 'fullname':

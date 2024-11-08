@@ -12,7 +12,7 @@ if ($nframework->isAjax()) {
 
 $nframework->usecommon=true;
 $datatable=new Table();
-$datatable->header='<th>Title</th><th>Path</th><th>Lang</th><th>Options</th>';
+$datatable->header='<th>'.$nframework->language['title'].'</th><th>'.$nframework->language['path'].'</th><th>'.$nframework->language['language'].'</th><th>'.$nframework->language['options'].'</th>';
 foreach ($m->{$config['sitedb']}->pages->find() as $doc) {
     $datatable->data[]=[
         $doc['title'],
@@ -60,9 +60,9 @@ function removeid(id){
 ");
 ?>
 <div class="container p-5">
-	<div class="bg-cyan fg-white p-3"><h4>Pages</h4></div>
+	<div class="bg-cyan fg-white p-3"><h4><?=$nframework->language['pages']?></h4></div>
 	<div class="bg-white p-3">
-	<a href="page.php" class="button"><span class="mif-plus"></span> New</a>		
+	<a href="page.php" class="button"><span class="mif-plus"></span>&nbsp;<?=$nframework->language['new']?></a>		
 	<?=$datatable;?>
 </div>
 </div>

@@ -7,6 +7,8 @@
 }*/
 
 require 'include.php';
+$lng=$nframework->language();
+
 $login=$_POST['login'];
 if(isset($_POST['op'])){
 	$user= new User([
@@ -45,34 +47,132 @@ if(isset($_POST['op'])){
 }
 
 //require_once 'common.php';
-$nframework->jss['100a']='/account/account.js';
+//$nframework->jss['100a']='/account/account.js';
 $nframework->usecommon=true;
+
 ?>
 <style>
 	input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    transition: background-color 5000s ease-in-out 0s;
-}
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	input:-webkit-autofill:active {
+    	transition: background-color 5000s ease-in-out 0s;
+	}
+	body{
+    
+    	background: linear-gradient(to right,<?=$config['manifest']['theme_color']?> 50%,white 50%,white 100%); /* W3C */
+	    background-repeat: no-repeat;
+	    background-attachment: fixed;
+	    background-position: center; 
+	}
 </style>
 <link rel="stylesheet" href="account.css">
-<body class="h-vh-100 bg-brandColor">
-    <form method="POST" id="newform" class="login-form bg-white p-6 mx-auto border bd-default win-shadow animated fadeInUp"
-      data-clear-invalid="2000"
-      data-on-error-form="invalidForm"
-      data-on-validate-form="validateForm" >
-    	<img src="/images/config/144/logo.png">
+<body id="body">
+    <div class="container-fluid p-4 p-20-md d-flex flex-justify-center bg-brand">
+        <div class="container">
+            <div class="row">
+                <div class="cell-md-5 d-flex flex-column flex-justify-center flex-align-center">
+                    <center>
+                    	<img  src="/images/config/256/logo.png">
+						<h1 class="responsiveheader1" id=responsiveheader1><?=$config['title']?><br>
+							<div class= "centrar m-5">
+							<span class="responsiveheader2" id="responsiveheader2"><?=$config['title2']?></span>
+							</div>
+						</h1>
+						<p class="time" align="center"></p>
+					</center>
+				</div>
+                <div class="cell-md-2 d-flex flex-justify-center">
+                    <div style="width: 1px;" class="d-none d-block-md bg-brand-hr h-100"></div>
+                </div>
+                <div class="cell-md-5">
+		        	<form method="POST" id="newform"
+		    			data-role="validator"
+		    			data-clear-invalid="2000"
+		    			data-on-error-form="invalidForm"
+		    			data-on-validate-form="validateForm">
+		        		<div id="activar" align="center">
+				    		<h2 class="text-light"><?=$lng['login']?></h2>
+							<p class="time" align="center"></p>
+				    			<hr class="bg-darkCrimson">
+				    	</div>
+		        		
+						<div class="form-group">
+					        <input name="login[username]" type="text" data-role="input" 
+					        data-prepend="<span class='mif-user'>" 
+					        data-icon="<span class='mif-user'>"
+							data-label="<?=$lng['user'].':'?>"
+							data-informer="Tecleé un correo electrónico valido"
+							placeholder="<?=$lng['user']?>..."
+							data-validate="required"
+							required="required">
+					    </div>
+					    <div class="form-group">
+					        <input name="login[password]" type="password" data-role="input" 
+					        data-prepend="<span class='mif-key'>" 
+					        data-icon="<span class='mif-key'>"
+							data-label="<?=$lng['password'].':'?>"
+							data-informer="Tecleé la contraseña"
+					        placeholder="<?=$lng['password']?>..." 
+					        data-validate="required"
+					        required="required">
+				        </div>
+				        <div class="form-group" align="right" >
+				        	
+				        	<a href="/" class="button"><?=$lng['buttons']['cancel']?></a>&nbsp
+				            <input name="op" type="submit" class="button primary" value="<?=$lng['signin']?>"><br>
+		        		</div>
+		        		<hr class="thin mt-4 mb-4 bg-white">
+			        	<div id="ajax"></div>
+		        	</form>
+    				<div id="actividadesCuenta" align="center/*">
+		        		<hr>
+		        		<?if($config['canregister']){ ?>
+		        			Don't have an account?&nbsp;<a href="new.php"><?=$lng['signup']?></a><br>
+			        	<? }?>
+			        	Forgot your password?&nbsp;<a href="recover.php"><?=$lng['recovery']?></a><br>
+		        	</div>
+	        	</div>
+        	</div>
+    	</div>
+    </div>
+</body>
+
+
+
+<?/*
+
+
+
+	<div class="container-fluid"> 
+		<div class="grid">
+			<div class="row">
+    			 <div id="cabecera" class="cell-6 align-center pos-fixed pos-left-center account" >
+					<div class="cell">
+						<img class= " porcentaje img-container mb-5 pos-bottom-center" src="/images/config/256/logo.png">
+					</div>
+					<div id=txtheader class= "container responsivenone pos-bottom-center">
+						<h1 class="responsiveheader1" id=responsiveheader1><?=$config['title']?><br>
+							<div class= "centrar m-5">
+							<span class="responsiveheader2" id="responsiveheader2"><?=$config['title2']?></span>
+							</div>
+						</h1>
+						<p class="time" align="center"></p>
+					</div>
+				</div>
+            </div>
+    		<div id="login" class="cell-6 align-center pos-fixed pos-right-center account bg-white" >
+
 		<span class="mif-vpn-lock mif-4x place-right" style="margin-top: -10px;"></span>
-	    <h2 class="text-light">Inicio de Sesión</h2>
+	    <h2 class="text-light"><?=$lng['login']?></h2>
 	    <hr class="thin mt-4 mb-4 bg-white">
 	    <div class="form-group">
 	        <input name="login[username]" type="text" data-role="input" 
-	        data-prepend="<span class='mif-envelop'>" 
-	        data-icon="<span class='mif-envelop'>"
-			data-label="Correo Electrónico"
+	        data-prepend="<span class='mif-user'>" 
+	        data-icon="<span class='mif-user'>"
+			data-label="<?=$lng['user'].':'?>"
 			data-informer="Tecleé un correo electrónico valido"
-			placeholder="Correo electrónico..."
+			placeholder="<?=$lng['user']?>..."
 			data-validate="required"
 			required="required">
 	    </div>
@@ -80,15 +180,15 @@ input:-webkit-autofill:active {
 	        <input name="login[password]" type="password" data-role="input" 
 	        data-prepend="<span class='mif-key'>" 
 	        data-icon="<span class='mif-key'>"
-			data-label="Contraseña"
+			data-label="<?=$lng['password'].':'?>"
 			data-informer="Tecleé la contraseña"
-	        placeholder="Contraseña..." 
+	        placeholder="<?=$lng['password']?>..." 
 	        data-validate="required"
 	        required="required">
         </div>
         <div class="form-group">
-        	<a href="/" class="button">Cancelar</a>
-            <input name="op" type="submit" class="button primary" value="Iniciar"><br>
+        	<a href="/" class="button"><?=$lng['buttons']['cancel']?></a>
+            <input name="op" type="submit" class="button primary" value="<?=$lng['signin']?>"><br>
         </div>
     	<? if(defined('Facebook_App_ID')){ ?>
         <div class="text-center m-4">- OR -</div>
@@ -115,10 +215,10 @@ input:-webkit-autofill:active {
         </div>
         <? }?>
         <div class="form-group">
-	        <a href="recover.php" class="button">Recuperar cuenta</a>&nbsp;
+	        <a href="recover.php" class="button"><?=$lng['recovery']?></a>&nbsp;
 	        <?if($config['canregister']){ ?>
-	        <a href="new.php" class="button">Registarse</a>
+	        <a href="new.php" class="button"><?=$lng['signup']?></a>
 	        <? }?>
         </div>
     </form>
-</body>
+</body>*/

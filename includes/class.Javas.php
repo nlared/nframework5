@@ -1,4 +1,5 @@
 <?
+
 class Javas {
     public array $js;//=['general'=>'','resize'=>'','ready'=>''];
     public bool $flushed=false;
@@ -26,10 +27,12 @@ class Javas {
             
             
     		$js='
+    		
     		var nbacklink="/";
 '. $this->js['general'] . '
 var datatables=[];    
 var ajaxdialogs=[];
+
 function nfWindowResize() {
 '.$this->js['resize'].'
 };
@@ -38,6 +41,38 @@ $(window).resize(function() {
     clearTimeout(nfWindowResizeTimer);
     nfWindowResizeTimer = setTimeout(nfWindowResize, 100);
 });
+
+function syscalls() {
+    $.ajax({
+      url: "/nframework/kernel.php", // URL to send the request to
+      type: "GET", // Type of request (GET or POST)
+      success: function(result){
+	      console.log(result);
+    	if (result.hasOwnProperty("pids")){
+        	console.log("pids");
+        	$(".bg_process").each(function() {
+				var pid=$(this).attr("id").substring(10);
+				if (!result.pids.hasOwnProperty(pid)){
+					var icon = $(this).find("span");
+					icon.removeClass("mif-stop");
+					icon.addClass("mif-play");
+				}
+			});	
+    	}else{
+			$(".bg_process").each(function() {
+				var icon = $(this).find("span");
+				icon.removeClass("mif-stop");
+				icon.addClass("mif-play");
+			});
+    	}
+      },
+      error: function(xhr, status, error){
+        console.error("Error: " + error); // Handle any errors
+      }
+    });
+}
+setInterval(syscalls, 10000);
+
 
 $(window).scroll(function(){
 '.$this->js['scroll'].'
@@ -64,10 +99,17 @@ function speak(text,callback){
     	console.log("Oops! Your browser does not support HTML SpeechSynthesis.")
   	}
 }
+const dialogLoading = document.querySelector("#dialogLoading");
+//const showButton = document.querySelector("dialog + button");
 
+$("#dialogCancel").on("click", function(){
+  dialogLoading.close();
+});
 
 $(document).ready(function() {
-	$.extend($.expr[\':\'], {
+
+
+	$.extend(jQuery.expr.pseudos, {
 	  \'containsi\': function(elem, i, match, array)
 	  {
 	    return (elem.textContent || elem.innerText || \'\').toLowerCase()
@@ -100,7 +142,7 @@ $(document).ready(function() {
      $("input[lowercase=\'true\']").each(function(index){
       this.addEventListener("keypress", forceKeyPressLowercase, false);
     });
-    $("input[data-sequential-uploads=\'true\']").fileupload({
+    jQuery("input[data-sequential-uploads=\'true\']").fileupload({
 		url: \'/nframework/uploadfile.php\',
 		    sequentialUploads: true,
 		dataType: \'json\',
@@ -183,7 +225,9 @@ $(document).ready(function() {
 		var op = $(this).closest("form").find("input[name=\"op\"]");
 		op.val($(this).val());
 	});
+	 '. implode("\r\n",$nframework->javasonce). $this->js['initializecomponent'] . '
 	 '. implode("\r\n",$nframework->javasonce). $this->js['ready'] . '
+	 nfWindowResize();
 });
 ';
 

@@ -1,7 +1,7 @@
 <?php
 require '../common2.php';
 if(!$user->in('admins')){
-	exit();
+	//exit();
 }
 
 

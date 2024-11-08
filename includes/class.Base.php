@@ -65,6 +65,8 @@ class baseInput  {
 	public $validate;
 	public $title;
 	public $onChange;
+	public $tags;
+	public $value;
 	public function __toMongo($val){
 		return $val;
 	}
@@ -72,9 +74,6 @@ class baseInput  {
         $ovars=array_keys( get_object_vars($this));
         if($option=='value'){
            $this->value=$value;
-        }elseif($option=='dataset'){
-            $this->dataset=$value;
-            $value->addElement($this);               
         }elseif(in_array($option, $ovars)){
             $this->{$option} = $value;
         }else{
@@ -123,8 +122,8 @@ class baseInput  {
             if($option=='value'){
                $this->value=$value;
             }elseif($option=='dataset'){
-                $this->dataset=$value;
                 $value->addElement($this);               
+                $this->dataset=$value;
             }elseif(in_array($option, $ovars)){
                 $this->{$option} = $value;
             }else{
@@ -132,10 +131,8 @@ class baseInput  {
             }
         }
         
-        if (isset($this->value)) {
-            $tmpval = $this->value;
-        } else {
-            $this->value=(isset($this->default)?$this->default:'');
+        if (empty($this->value)&&!empty($this->default)){
+        	$this->value=$this->default;
         }
         
         
@@ -243,6 +240,8 @@ class inputText extends baseInput {
     public $addclass='form-control';
     public $type;
     public $uppercase;
+    public $lowercase;
+    
     public $invalid_feedbak;
     public $infobox;
     public $value;
@@ -350,6 +349,20 @@ class inputCurrency extends baseInput {
 
 class inputNumber extends baseInput {
 	public $addclass;
+	public $value;
+	
+	public $default;
+	public function __construct($options = array()) {
+        $options['class']='inputNumber';
+        if(!isset($options['type'])){
+            $options['type']='number';        
+        }        
+        parent::__construct($options);
+        
+     
+    }
+
+	
 	public function __toMongo($val){
 		return ($this->data_validate=='integer'||$this->data_validate=='digits'?(int)$val :(float)$val );
 	}
@@ -445,6 +458,27 @@ class inputSpinner extends baseInput {
     
 }
 
+class inputRating extends baseInput {
+	public $tags=['data-values','onchange'];
+	public $onchange;
+	public function __toString() {
+		return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').
+		'<input data-role="rating"  id="'.$this->id.
+			'" name="' . $this->name .
+			'"' . $this->writetags() .' data-value="'.$this->value.'">';
+	}
+}
+
+class inputColor extends baseInput {
+	public $tags=['data-values','onchange'];
+	public $onchange;
+	public function __toString() {
+		return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').
+		'<input type="color" data-role="input" id="'.$this->id.
+			'" name="' . $this->name .
+			'"' . $this->writetags() .' value="'.$this->value.'">';
+	}
+}
 
 class inputDate extends baseInput {
     
@@ -573,12 +607,14 @@ class inputMCE extends baseInput {
     	global $nframework;
     	//$nframework->jss['025']='https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.1.2/tinymce.min.js';
 	    $nframework->jss['025']='https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js';
+	    //$nframework->jss['025']='https://cdn.tiny.cloud/1/mrkd91ya8b36oxy2h9vgm9h3zqsvhev9bpsxx8jcb555afpm/tinymce/7/tinymce.min.js" referrerpolicy="origin';
+		
 		$nframework->javasonce['mce']='tinymce.init({
 	selector:\'textarea[data-role="tinyMCE"]\',
 	plugins: [
     \'a11ychecker\', \'advcode\', \'advlist\', \'anchor\', \'autolink\', \'codesample\', \'fullscreen\', \'help\',
     \'image\', \'editimage\', \'tinydrive\', \'lists\', \'link\', \'media\', \'powerpaste\', \'preview\',
-    \'searchreplace\', \'table\', \'template\', \'tinymcespellchecker\', \'visualblocks\', \'wordcount\', \'code\'
+    \'searchreplace\', \'table\', \'tinymcespellchecker\', \'visualblocks\', \'wordcount\', \'code\'
   
     ],
 	image_list: \'/nframework/tinymceimgs.php?_id='.$this->id.'\',
@@ -860,6 +896,90 @@ class inputCheckBoxs extends Select {
         
     }
 }
+class inputfile extends baseInput{
+	public $id;
+	public $path;
+	public $dir;
+	public $drop;
+	public $accept;
+	function __toString(){
+		global $javas,$nframework;
+		$_SESSION['uploads4'][$this->id] = [
+            'dir' => $this->dir,
+            'formname' => $this->name,
+            'delete'=>$this->delete,
+            'download'=>$this->download,
+            'preview'=>$this->preview,
+            'extension'=>$nframework->api_path.'/uploadfile_ext_path.php',
+            'extensioninfo'=>['path'=>$this->path],
+            'onupload'=>'onupload',
+            'ondelete'=>'ondelete',
+        	'onlist'=>'onlist',
+            'countlimit'=>100,
+          //  'sizelimit'=>$this->sizelimit,
+            'limit_time_start'=>($this->limit_time_start==''?time():$this->limit_time_start),
+            'limit_time_end'=>($this->limit_time_end==''? strtotime("+30 minutes"):$this->limit_time_end),
+        ];
+		
+		$javas->addjs('
+	$("#'.$this->id.'").fileupload({
+      url:  \'/nframework/uploadfile.php\',
+      dataType: "json",
+      maxNumberOfFiles: 1,
+      done: function (e, data) {
+          $.each(data.result.files, function (index, file) {
+              $("<p/>").text(file.name).appendTo("#files");
+          });
+          	
+          	$.ajax({
+				url: "/nframework/preview.php?id='.$this->id.'", 
+				cache: false,
+				success: function (result) {
+					var bhtml="";
+					
+					$.each(result.links, function (index, link) {
+	            		bhtml+=\'<img src="\'+link+\'" loading="lazy">\';
+					});
+	    			$("#'.$this->id.'_preview").html(bhtml);
+				}
+			});
+      },
+      progressall: function (e, data) {
+        	var progress = parseInt(data.loaded / data.total * 100, 10);		
+	        var pg=$("#'.$this->id.'_progress");
+	        if (progress==100){
+	        	pg.hide();
+			}else{
+	        	pg.show();
+	        	pg.attr("data-value",progress);
+	        
+	      	}
+      }
+	}).bind("fileuploadcompleted",function(e,data){
+          console.log("eventFinished");
+        }).prop("disabled", !$.support.fileInput)
+      .parent().addClass($.support.fileInput ? undefined : "disabled");
+','ready');
+		return '<input type="file" id="'.$this->id.'" name="'.$this->id.'"'.
+		($this->disabled ? ' disabled' : '') .
+        ($this->prepend ? ' data-prepend="'.$this->prepend.'"' : '').
+        ($this->drop ? ' data-mode="drop" data-files-title="archivo(s) seleccionado(s)" data-drop-title="<strong>Selecciona archivo(s)</strong>" ' : '') .
+        ($this->accept ? ' accept="'.$this->accept.'"' : '') .'
+data-sequential-uploads="true" placeholder="Arrastra hasta aqui para subir archivos"
+data-role="file" data-button-title="<span class=\'mif-folder\'></span>"
+data-form-data=\'{"mid":"' . $this->id . '"}\'/>
+		<div data-role="progress" id="'.$this->id.'_progress" data-type="buffer" data-value="0" data-buffer="100" data-small="true"></div>
+		<div id="'.$this->id.'_preview" style="overflow-y: auto;overflow-x: hidden;height:200px">
+		</div>';
+
+
+
+	}
+}
+
+
+
+
 
 class inputFiles extends baseInput {
 	public $dir;
@@ -913,6 +1033,7 @@ data-form-data=\'{"mid":"' . $this->id . '"}\'/><div id="' . $this->id . '_list"
 class mapmarker extends baseInput{
 //	public $latitude;
 //	public $longitude;
+	public $onchange;
 	public $height=500;
 	public $value=[
 		'lat'=>'',
@@ -955,6 +1076,7 @@ class mapmarker extends baseInput{
             maps['".$this->id."_map'].flyTo(position);
             $('#".$this->id."_lat').val(position.lat);
             $('#".$this->id."_lng').val(position.lng);
+            ".(!empty($this->onchange)?$this->onchange:'')."
             marker.setLatLng(position,{draggable:'true'}).bindPopup(position).update();
     	});
 		maps['".$this->id."_map'].addLayer(mapsmarker['".$this->id."_mapmarker']);
@@ -1062,8 +1184,10 @@ class datasetpdo{
         return isset($this->info[$name]);
     }
 }
+
+#[\AllowDynamicProperties]
 class dataset  {
-    public $elements; 
+    public $elements=[]; 
     private $collection;
     private $_id;
     public $info=[];

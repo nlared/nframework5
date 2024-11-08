@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);//*/
 $errores=[];
 function return_bytes($val) {
-    $val = trim($val);
+    $val = (int)trim($val);
     $last = strtolower($val[strlen($val)-1]);
     switch($last) {
         // The 'G' modifier is available since PHP 5.1.0
@@ -39,37 +39,50 @@ error_reporting(E_ALL);
 $phpver=number_format((float)phpversion(),1);
 $apts=[];
 
-if(!in_array('mongodb',$exts)){
-	$apts[]= "php$phpver-mongodb";
+
+$depends=[
+	'mongodb'=>"php$phpver-mongodb",
+	'intl'=>"php$phpver-intl",
+	'gd'=>"php$phpver-gd",
+	'curl'=>"php$phpver-curl",
+	'pdo_sqlite'=>"php$phpver-sqlite",
+	'zip'=>"php$phpver-zip",
+	'mbstring'=>"php$phpver-mbstring",
+	'libxml'=>"php$phpver-xml",
+	'imagick'=>'php-imagick'
+];
+
+foreach($depends as $ext=>$command){
+	if(!in_array($ext,$exts)){
+		$apts[]=$command;
+	}
 }
-if(!in_array('intl',$exts)){
-		$apts[]= "php$phpver-intl";
-}
-if(!in_array('gd',$exts)){
-		$apts[]= "php$phpver-gd";
-}
-if(!in_array('curl',$exts)){
-		$apts[]= "php$phpver-curl";
-}
-if(!in_array('pdo_sqlite',$exts)){
-		$apts[]= "php$phpver-sqlite";
-}
-if(!in_array('zip',$exts)){
-		$apts[]= "php$phpver-zip";
-}
-if(!in_array('mongodb',$exts)){
-		$errores[]= "";
-}
-if(!in_array('mbstring',$exts)){
-		$apts[]= "php$phpver-mbstring";
-}
-if(!in_array('libxml',$exts)){
-		$apts[]= "php$phpver-xml";
-}
+
+
+
 
 if(count($apts)>0){
 	$errores[]='sudo apt-get install '.implode(' ',$apts) ;
 }
+
+
+// Command to check Ghostscript version
+$command = "gs --version";
+
+// Execute the command
+$output = [];
+$return_var = 0;
+exec($command, $output, $return_var);
+
+// Check if Ghostscript is installed
+if ($return_var === 0) {
+    echo "Ghostscript is installed. Version: " . implode("\n", $output);
+} else {
+    $errores[]= "Ghostscript is not installed or not accessible. sudo apt-get -y install ghostscript ";
+}
+
+
+
 
 $includespath=get_include_path();
 
@@ -80,7 +93,11 @@ foreach ($data as $line) {
     list($key, $val) = explode(":", $line);
     $meminfo[$key] = trim($val);
 }
-    
+/*
+opcache.enable_cli=1
+opcache.jit_buffer_size=500000000
+opcache.jit=1235
+*/
 
 
 include('config.php');
@@ -182,4 +199,4 @@ if(count($errores)>0){
 	echo "No se encontraron errores de configuración";
 }
 require 'include.php';
-echo "sid:".session_id();
+echo "sid:".session_id().'<br>'.$_SESSION['nf']['browser']['language'];

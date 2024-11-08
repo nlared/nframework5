@@ -46,7 +46,7 @@ class class_config implements ArrayAccess {
 		
 		$this->contenedor=$conf;
 	}
-	public function offsetSet($offset, $valor) {
+	public function offsetSet(mixed $offset, mixed $valor) :void{
         
         /*if (is_null($offset)) {
             $this->contenedor[] = $valor;
@@ -70,12 +70,14 @@ $config=new class_config();
 
 
 class class_nframework{
-	private bool $isAjax=false;
+	public array $language; 
+	public bool $isAjax=false;
 	public bool $https=false;
 	public String $lang;
 	public String $lang_;
 	public String $langshort;
 	public array $languages;
+	//public String $language;
 	private array $config;
 	private array $counters=[];
 	public array $errores=[];
@@ -86,11 +88,12 @@ class class_nframework{
 	public array $docend=[];
 	public bool $usecommon=false;
 	public String $include_path;
+	public String $api_path;
 	public String $body_addtag='';
 	public String $html_addtag='';
 	public function __construct(){
 		$this->include_path=__DIR__;
-		
+		$this->api_path=$_SERVER['DOCUMENT_ROOT'].'/nframework';
 		if	(!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])){
 			if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https'){
 				$this->https=true;
@@ -111,26 +114,37 @@ class class_nframework{
 		//	$this->usecommon=false;
 		}else{
 			
-			$this->csss['000']='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css';
-			$this->csss['004']='https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css';
-			$this->csss['005rte']='https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css';
-			$this->csss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.31.0/css/jquery.fileupload.min.css';
-			$this->csss['050']='https://cdn.metroui.org.ua/dev/metro.css';
-			$this->csss['051']='https://cdn.metroui.org.ua/dev/icons.css';
-			$this->csss['100']='https://cdn.nlared.com/nframework/4.5.0/nframework.min.css';
+			$this->csss=[
+				'000'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.0/themes/smoothness/jquery-ui.min.css',
+				'004'=>'https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css',
+				'005rte'=>'https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css',
+				'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/css/jquery.fileupload.min.css',
+				'050'=>'https://cdn.nlared.com/metro4/metro.min.css',
+				'051'=>'https://cdn.nlared.com/metro4/icons.min.css',
+				'100'=>'https://cdn.nlared.com/nframework/4.5.0/nframework.min.css',
+			];
 			
-			$this->jss['000']='/main.js';
-			$this->jss['001']='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.4.min.js';
-			$this->jss['002']='https://ajax.aspnetcdn.com/ajax/jquery.ui/1.13.2/jquery-ui.min.js';
-			$this->jss['003']='https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js';
-			$this->jss['004']='https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js';
-			$this->jss['005']='https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js';
-			$this->jss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js';
-			$this->jss['007']='https://cdn.nlared.com/jquery-parallax/parallax.min.js';
-			$this->jss['008']='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js';
-			$this->jss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.31.0/js/jquery.fileupload.min.js';
-			$this->jss['050']='https://cdn.metroui.org.ua/dev/metro.js';
-			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.0/nframework.min.js';
+			$this->jss=[
+				'000'=>'/main.js',
+				'001'=>'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.1.min.js',
+				'002'=>'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.0/jquery-ui.min.js',
+		//		'003'=>'https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js',
+				'004'=>'https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js',
+				'005'=>'https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js',
+				'006'=>'https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js',
+				'007'=>'https://cdn.nlared.com/jquery-parallax/parallax.min.js',
+				'008'=>'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js',
+				'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
+				'050'=>'https://cdn.nlared.com/metro4/metro.min.js',
+				
+				
+				'100'=>'https://cdn.nlared.com/nframework/4.5.0/nframework.min.js',
+			];
+			/*$this->csss['050']='https://cdn.metroui.org.ua/current/metro.css';
+			$this->csss['051']='https://cdn.metroui.org.ua/current/icons.css';
+			$this->jss['050']='https://cdn.metroui.org.ua/current/metro.js';
+			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.1/nframework.js?dev='.date('ymdhis');
+		//*/
 		}
 	}
 	public function getAuthorizationHeader():string{
@@ -220,12 +234,16 @@ class class_nframework{
 		$writer->save('php://output');
 		
 	}
+	function language(){
+		return $this->languages[$this->lang];
+	}
 	
 }
 $nframework=new class_nframework();
 require 'class.Base.php';
 try{
 	$m = new MongoDB\Client($config['mongo_connection_string']);
+
 	$config->loadfromdb();
 	
 	
@@ -233,6 +251,7 @@ try{
     echo 'Excepción capturada: ',  $e->getMessage(), "\n";
     phpinfo();
 }
+if(!empty($config['timezone']))date_default_timezone_set($config['timezone']);
 
 use MongoDB\BSON\ObjectID;
 function toMongoId($item){
@@ -249,15 +268,13 @@ function nferrorhandler(int $errno , string $errstr , string $errfile , int $err
 	global $developermode,$m,$nframework,$config;
 	if (!$developermode){
 	    if($errno ^ E_NOTICE && $errno ^ E_WARNING){
-		    $errordoc=[
-		        'type'=>$errno,
-		        'file'=>$errfile,
-		        'number'=>$errline,
-		        'desc'=>$errstr,
-			];    
-			$result=$m->{$config['sitedb']}->errorlog->updateOne($errordoc,[
+		    
+			$result=$m->{$config['sitedb']}->errorlog->updateOne([
+				'desc'=>$errstr
+				],[
 		        '$inc'=>['tries'=>1],
-		        '$set'=>['lasttime'=>date('Y-m-d H:i:s')]
+		        '$set'=>['lasttime'=>date('Y-m-d H:i:s')],
+		        '$setOnInsert'=>['type'=>$errno,'file'=>$errfile,'number'=>$errline]
 		    ],['upsert'=> true]);
 	        if($errordoc['type'] & E_FATAL){
 	        	http_response_code(200);
@@ -331,10 +348,11 @@ if(empty($_SESSION['nf']['browser']['language'])){
 	$nframework->loadBrowserInfo();
 }
 
-$nframework->lang=$_SESSION['nf']['browser']['language'];
+$nframework->lang=(empty($_SESSION['nf']['browser']['language'])?'en-US':$_SESSION['nf']['browser']['language']);
 $nframework->lang_=str_replace('-','_',$nframework->lang);
 $nframework->langshort=substr($nframework->lang,0,2);
 require $nframework->include_path.'/i18n/'.$nframework->lang.'.php';
+$nframework->language=$nframework->languages[$nframework->lang];
 if (isset($_SESSION['user'])) {
     $user = new User(array('username' => $_SESSION['user']));
     if ($user->username == ''|| $user->disabled==true) {
@@ -475,6 +493,7 @@ function nfshutdown(){
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="utf-8" />
+    <meta name="metro4:jquery" content="true">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="google-site-verification" content="' . $config['google-site-verification'] . '" />
 <meta name="Title" content="' .$config['title'].' '.$metas['title'] . '" />
@@ -507,9 +526,16 @@ function nfshutdown(){
 <title>' . $config['title'] .' '.$metas['title']. '</title>
     '.$csss.'
   </head>
-  <body'.$nframework->body_addtag.'>'
-  .$buffer.implode('',$nframework->docend).$jss.$javas.$javasstr.
-  '</body>
+  <body'.$nframework->body_addtag.'>
+  <dialog id="dialogLoading">
+		<center>
+			<span class="mif-spinner2 ani-spin"></span>
+			<div autofocus id="#dialogCancel" class="button">Cancelar</div>
+		</center>
+	</dialog>'
+  .$buffer.implode('',$nframework->docend).$jss.$javas.$javasstr.'
+	
+</body>
 </html>';
 			
 		}else{

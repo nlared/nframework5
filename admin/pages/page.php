@@ -14,14 +14,14 @@ $dataset=new dataset(
 );
 
 
-$title=new inputtext(['dataset'=>&$dataset,'field'=>'title','caption'=>'Titulo:',]);
-$background=new inputtext(['dataset'=>&$dataset,'field'=>'background','caption'=>'Background:',]);
-$path=new inputtext(['dataset'=>&$dataset,'field'=>'path','caption'=>'Path:',]);
-/*$lang=new select(['dataset'=>&$dataset,'field'=>'lang','caption'=>'Language:','options'=>[
+$title=new inputtext(['dataset'=>&$dataset,'field'=>'title','caption'=>$nframework->language['title'].':',]);
+$background=new inputtext(['dataset'=>&$dataset,'field'=>'background','caption'=>$nframework->language['background'].':',]);
+$path=new inputtext(['dataset'=>&$dataset,'field'=>'path','caption'=>$nframework->language['path'].':',]);
+$lang=new select(['dataset'=>&$dataset,'field'=>'lang','caption'=>'Language:','options'=>[
 	'es-MX'=>'es-MX',
 	'en-US'=>'en-US'
 	]]);//*/
-$keywords=new inputtext(['dataset'=>&$dataset,'field'=>'keywords','caption'=>'Keywords:',]);
+$keywords=new inputtext(['dataset'=>&$dataset,'field'=>'keywords','caption'=>$nframework->language['keywords'].':',]);
 //$html=new inputmce(['dataset'=>&$dataset,'field'=>'html','caption'=>'Html:',]);
 
 if (!file_exists($_SERVER["DOCUMENT_ROOT"].'/media')){
@@ -38,11 +38,11 @@ $html=new inputmce(['dataset'=>&$dataset,'field'=>'html','caption'=>'Html:',
 ]);
 
 
-$description=new inputtext(['dataset'=>&$dataset,'field'=>'description','caption'=>'Description:',]);
+$description=new inputtext(['dataset'=>&$dataset,'field'=>'description','caption'=>$nframework->language['description'].':',]);
 
-$robots=new inputcheckboxs(['dataset'=>&$dataset,'field'=>'robots','caption'=>'Robots:<br>','options'=>[
-	'noindex'=>'No index',
-	'nofollow'=>'No follow'
+$robots=new inputcheckboxs(['dataset'=>&$dataset,'field'=>'robots','caption'=>$nframework->language['robots'].':<br>','options'=>[
+	'noindex'=>$nframework->language['noindex'],
+	'nofollow'=>$nframework->language['nofollow']
 	]]);
 
 
@@ -71,34 +71,42 @@ if ($nframework->isAjax()) {
 	
 ?>
 <div class="container p-5">
-	<div class="bg-cyan fg-white p-3"><h4>Page</h4></div>
+	<div class="bg-cyan fg-white p-3"><h4><?=$nframework->language['page']?></h4></div>
 	<div class="bg-white p-3">
 	<?=secureform()?>
 		<div class="grid">
 			<div class="row">
-				<div class="cell"><?=$title?></div>
-			</div>
-			<div class="row">
-				<div class="cell"><?=$description?></div>
-			</div>
-			<div class="row">
-				<div class="cell"><?=$keywords?></div>
-			</div>
-			<div class="row">
 				<div class="cell"><?=$path?></div>
-				<div class="cell"><?=$lang?></div>
-				<div class="cell"><?=$robots?></div>
-			</div>
-			
-			<div class="row">
-				<div class="cell"><?=$background?></div>
+				<div class="cell-md-3"><?=$lang?></div>
 			</div>
 			<div class="row">
-				<div class="cell"><?=$html?></div>
-			</div>
-			<div class="row">
-				<div class="cell-md-2 offset-md-8"><a href="./" class="button primary w-100"><span class="mif-exit"></span>&nbsp;Cerrar</a></div>
-				<div class="cell-md-2"><button class="button secureop success w-100" value="save"><span class="mif-floppy-disk"></span>&nbsp;Guardar</button></div>
+				<div class="cell">
+					<?=$html?>		
+				</div>
+				<div class="cell-md-3">
+					<div class="row">
+						<div class="cell"><?=$title?></div>
+					</div>
+					<div class="row">
+						<div class="cell"><?=$description?></div>
+					</div>
+					<div class="row">
+						<div class="cell"><?=$keywords?></div>
+					</div>
+					<div class="row">
+						<div class="cell"><?=$robots?></div>
+					</div>
+					<div class="row">
+						<div class="cell"><?=$background?></div>
+					</div>
+					<div class="row">
+						<div class="cell"><button class="button primary w-100">Abir pagina</button></div>
+					</div>
+					<div class="row">
+						<div class="cell"><a href="./" class="button primary w-100"><span class="mif-exit"></span>&nbsp;<?=$nframework->language['close']?></a></div>
+						<div class="cell"><button class="button secureop success w-100" value="save"><span class="mif-floppy-disk"></span>&nbsp;<?=$nframework->language['save']?></button></div>
+					</div>
+				</div>
 			</div>
 		</div>
 <?}?>

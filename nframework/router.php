@@ -127,14 +127,15 @@ $router->addRoute('/.well-known/acme-challenge/[s:filename]', function($route, $
 
 $router->addRoute('/images/config/[i:size]/logo.png', function(string $route,array $p){
 	global $m,$config;
+	$logo=$_SERVER['DOCUMENT_ROOT'].'/img/nf/logo.png';
 	$dir='img/nf/config/';
 	$dst=$dir.'/logo_'.$p['size'].'.png';
-	if(!file_exists($dst)||filemtime($dst)<filemtime($config['image'])){
+	if(!file_exists($dst)||filemtime($dst)<filemtime($logo)){
 		if(!file_exists($dir)){
 			mkdir($dir,0777,true);
 		}
 		$manager = new ImageManager(array('driver' => 'gd'));
-		$img = $manager->make($config['image']);
+		$img = $manager->make($logo);
 		$img->fit($p['size'],$p['size'], function ($constraint) {
 		    $constraint->aspectRatio();
 		   // $constraint->upsize();
@@ -145,6 +146,56 @@ $router->addRoute('/images/config/[i:size]/logo.png', function(string $route,arr
     header('Content-Type: image/png');
     echo file_get_contents($dst);
 },'GET');
+
+$router->addRoute('/images/preview/pdf/[s:id]/[i:w]/[i:h]/[i:p].png', function(string $route,array $p){
+	$upload = $_SESSION['uploads4'][$p['id']];
+	$filename=$upload['extensioninfo']['path'];
+	$extension = pathinfo($filename, PATHINFO_EXTENSION);
+	
+	$dst=sys_get_temp_dir().'/'.uniqid('pdftopng',true);
+	mkdir($dst);
+	$pdf = new \Spatie\PdfToImage\Pdf($filename);
+	$pdf->format(\Spatie\PdfToImage\Enums\OutputFormat::Png);
+	$pdf->selectPage($p['p'])->size($p['w'])->save($dst);
+	
+/*	header('dst:'.$dst);
+	header('dstf:'.$filename);
+	header('dstp:'.$p['p']);//*/
+	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+	header('Content-Length: '.filesize($dst.'/'.$p['p'].'.png'));
+    header('Content-Type: image/png');
+    echo file_get_contents($dst.'/'.$p['p'].'.png');	
+	unlink($dst.'/'.$p['p'].'.png');
+	rmdir($dst);
+	
+},'GET');
+$router->addRoute('/images/[s:id]/[i:w]/[i:h]/preview.png', function(string $route,array $p){
+	$upload = $_SESSION['uploads4'][$p['id']];
+	$filename=$upload['extensioninfo']['path'];
+	$extension = pathinfo($filename, PATHINFO_EXTENSION);
+	
+	$dst=sys_get_temp_dir().'/'.uniqid('pdftopng',true);
+	mkdir($dst);
+	$pdf = new \Spatie\PdfToImage\Pdf($filename);
+	$pdf->format(\Spatie\PdfToImage\Enums\OutputFormat::Png);
+	$pdf->selectPage($p['p'])->size($p['w'])->save($dst);
+	
+/*	header('dst:'.$dst);
+	header('dstf:'.$filename);
+	header('dstp:'.$p['p']);//*/
+	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+	header('Content-Length: '.filesize($dst.'/'.$p['p'].'.png'));
+    header('Content-Type: image/png');
+    echo file_get_contents($dst.'/'.$p['p'].'.png');	
+	unlink($dst.'/'.$p['p'].'.png');
+	rmdir($dst);
+	
+},'GET');
+
 $router->addRoute('/images/config/[i:w]/[i:h]/logo.png', function(string $route,array $p){
 	global $m,$config;
 	$dir='img/nf/config/';
@@ -167,19 +218,31 @@ $router->addRoute('/images/config/[i:w]/[i:h]/logo.png', function(string $route,
 },'GET');
 
 $router->addRoute('/images/resize/[s:id]/[i:w]/[i:h]/[s:file]', function(string $route,array $p){
+	global $nframework;
 	if(isset($_SESSION['imagesresize'][$p['id']])){
 	$conf=$_SESSION['imagesresize'][$p['id']];
 		$filename=$p['file'];
 		$pos = strrpos($filename, '.');
 		$name=substr($filename,0,$pos);
 		$ext=substr($filename,$pos);
-		$dst=$conf['dst'].'/'.$name.'._'.$p['w'].'x'.$p['h'].$ext;
+		$dst=$conf['dst'].'/'.$name.'_'.$p['w'].'x'.$p['h'].$ext;
 		$src=$conf['src'].'/'.$filename;
 		//echo "$name  $ext $dst";
-		if(!file_exists($dst)||filemtime($dst)<filemtime($src)){
+		
+	
+		if(!file_exists($dst)){
 			if(!file_exists($conf['dst'])){
 				mkdir($dir,0777,true);
 			}
+			$actualizar=true;
+		}else{
+			$lasttimedst=filemtime($dst);
+			$lasttimesrc=filemtime($src);
+			if($lasttimedst<$lasttimesrc){
+				$actualizar=true;
+			}
+		}
+		if($actualizar){	
 			$manager = new ImageManager(array('driver' => 'gd'));
 			if(!file_exists($src)){
 				$src=$conf['default'];
@@ -190,7 +253,30 @@ $router->addRoute('/images/resize/[s:id]/[i:w]/[i:h]/[s:file]', function(string 
 			    //$constraint->upsize();
 			});
 			$img->save($dst);
+			$lasttimedst=filemtime($dst);
 		}
+		
+		$toetag.=$dst.$lasttimedst;
+		$nframework->lastmodified=$lasttimedst;
+		$nframework->etag = md5($toetag);
+		
+		//$nframework->expiretime=time() + (60 * 60 * 24);
+		
+		
+		if(isset($_SERVER['HTTP_IF_NONE_MATCH'])){
+			$id=trim($_SERVER['HTTP_IF_NONE_MATCH']);
+			if (substr($id,0,2)=="W/"){
+				$id=substr($id,2);
+			}
+			$id=str_replace('"','',$id);
+			if($id==$toetag){
+				header('ncache: 304');
+				http_response_code(304);
+				
+				die();
+			}
+		}
+		
 		header('Content-Length: '.filesize($dst));
 	    header('Content-Type: image/png');
 	    echo file_get_contents($dst);//*/
@@ -205,13 +291,27 @@ $router->addRoute('/nf.webmanifest', function(string $route,array $p){
 echo '{
     "name": "'.$config['title'].'",
     "short_name": "'.$config['shortname'].'",
+    "id": "'.$config['shortname'].'",
     "theme_color": "'.$config['manifest']['theme_color'].'",
     "background_color": "'.$config['manifest']['background_color'].'",
     "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "description": "'.$config['description'].'",
+    "description": "'.str_replace(array("\n", "\r"), '',$config['description']).'",
     "orientation": "any",
+    "launch_handler": {
+    	"client_mode": "auto"
+	},
+    "edge_side_panel": {
+    	"preferred_width": 1
+	},
+	"categories": [
+    "education"
+  ],
+  "dir": "auto",
+  "lang": "es",
+  "prefer_related_applications": false,
+  "iarc_rating_id": "16+",
     "icons": [
         {
             "src": "https://'.$_SERVER['HTTP_HOST'].'/images/config/72/logo.png",

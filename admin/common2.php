@@ -1,53 +1,54 @@
 <?
-
 require 'include.php';
 $nframework->usecommon=true;
 if(!$user->in('admins')){
 	header('Location: /');
 	exit();
-}//*/
+}
 
 
 $sidemenu.='
 	<li class="slide">
 		<a href="/" class="side-menu__item">
 	        <span class="icon"><span class="mif-home"></span></span>
-	        <span class="caption">Home</span>
+	        <span class="caption">'.$nframework->language['home'].'</span>
 	    </a>
     </li>
     <li class="slide">
     <a href="/admin/pages"  class="side-menu__item">
         <span class="icon"><span class="mif-document-file-html"></span></span>
-        <span class="caption">Pages</span>
+        <span class="caption">'.$nframework->language['pages'].'</span>
     </a></li>
     <li class="slide"><a href="/admin/menus" >
         <span class="icon"><span class="mif-document-file-html"></span></span>
-        <span class="caption">Menus</span>
+        <span class="caption">'.$nframework->language['menus'].'</span>
     </a></li>
     <li class="slide"><a href="/admin/site" >
         <span class="icon"><span class="mif-cog"></span></span>
-        <span class="caption">Site</span>
+        <span class="caption">'.$nframework->language['site'].'</span>
     </a></li>
     <li class="slide"><a href="/admin/theme/tconfig.php" >
         <span class="icon"><span class="mif-document-file-html"></span></span>
-        <span class="caption">Theme</span>
+        <span class="caption">'.$nframework->language['theme'].'</span>
     </a></li>
     
     <li class="slide"><a href="/admin/users" >
         <span class="icon"><span class="mif-user"></span></span>
-        <span class="caption">Users</span>
+        <span class="caption">'.$nframework->language['users'].'</span>
     </a></li>
     <li class="slide"><a href="/admin/usersgroups" >
         <span class="icon"><span class="mif-users"></span></span>
-        <span class="caption">Groups</span>
+        <span class="caption">'.$nframework->language['groups'].'</span>
     </a></li>
     <li class="slide"><a href="/admin/errorlog" >
         <span class="icon"><span class="mif-bug"></span></span>
-        <span class="caption">Error log</span>
+        <span class="caption">'.$nframework->language['logs'].'</span>
     </a></li>
 	';
 
 
+
+include $_SERVER['DOCUMENT_ROOT'].'/admins/common2.php';
 
 
 
@@ -58,3 +59,5 @@ $sidebar=new Sidebar([
 'title'=>'Admin',
 'sidemenu'=>$sidemenu]);
 echo $sidebar;
+
+

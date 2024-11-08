@@ -63,7 +63,8 @@ if (isset($_POST['mid']) && isset($_SESSION['uploads4'][$_POST['mid']])) {
 		        $filename=rawurldecode($_POST['file']);
 				$coding=mb_detect_encoding($filename);
 				if($coding!='UTF-8'){
-					$filename=iconv($coding,'UTF-8', $filename);
+					//$filename=iconv($coding,'UTF-8', $filename);
+					$filename=mb_convert_encoding($filename, 'UTF-8', 'auto');
 				}
 				$valido=valid_filename($filename);
 		        if($valido){
@@ -84,7 +85,8 @@ if (isset($_POST['mid']) && isset($_SESSION['uploads4'][$_POST['mid']])) {
 			    	$filename=rawurldecode($ufile['name']);
 					$coding=mb_detect_encoding($filename);
 					if($coding!='UTF-8'){
-						$filename=iconv($coding,'UTF-8', $filename);
+						//$filename=iconv($coding,'UTF-8', $filename);
+						$filename=mb_convert_encoding($filename, 'UTF-8', 'auto');
 					}
 					$valido=valid_filename($filename);
 			        if($valido!==false){
@@ -136,5 +138,5 @@ if (isset($_POST['mid']) && isset($_SESSION['uploads4'][$_POST['mid']])) {
     	];
     echo json_encode($result);
 }else{
-	echo 'session '. session_id(); 
+	$result=[ 'session '=> session_id()]; 
 }

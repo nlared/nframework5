@@ -23,12 +23,14 @@ class Table{
     public $compact=false;
     public $cellhover=false;
     public $nowrap=false;
+    public $rendertargets=true;
     //public $lengthMenu='[[5,10, 25, 50, -1], [5,10, 25, 50, "Todos"]]';//TODO: hasta que arreglen en datatables.net
     public $lengthMenu='[[5,10, 25, 50], [5,10, 25, 50]]';
     public $disablejs=false;
-    
+    public $stateSave='true';
     public $db;
     public $collection;
+    public $pipeline;
    
     public function __construct($options=[]){
     	global $nframework;
@@ -103,21 +105,19 @@ class Table{
             ($this->header!=''?'<thead>'.str_replace('td>', 'th>', $this->header) .'</thead>':'').''.
             ($this->foot!=''? '<tfoot>'.$this->foot   .'</tfoot>':'');
         if (count($this->columnDefs)>0){
-        	foreach($this->columnDefs as $targets=>$target){
-        		$columnDefss[]='{
-        			"targets": '.$targets.',
-        			"render":function(data,type,row,meta){ return '.$target['render'].';}
-        		}';
-        		
-        		//$columnDefss[]='{"targets": '.$targets.',"render":function (data,type,row) {return \''. str_replace(["\r\n","\n"],['',''],$render) .	"';}}";
-        			
+        	if($this->rendertargets){
+	        	foreach($this->columnDefs as $targets=>$target){
+	        		$columnDefss[]='{
+	        			"targets": '.$targets.',
+	        			"render":function(data,type,row,meta){ return '.$target['render'].';}
+	        		}';
+	        	}
+	        	$columnDefs=',"columnDefs":['.implode(',',$columnDefss).']';
+        	}else{
+        		$columnDefs='"columnDefs":'.json_encode($this->columnDefs);
         	}
-        	//$columnDefs=',"columnDefs":'.str_replace("\n",'',$this->columnDefs);
-        	$columnDefs=',"columnDefs":['.implode(',',$columnDefss).']';
         }
         
-          //$nframework->jss['060']='https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js';
-		//
          if($this->ajax){
             $ajax='"processing": true,
         	"serverSide": true,
@@ -144,9 +144,9 @@ class Table{
     '"scrollX": false, "responsive": true':
     '"scrollX": true , "responsive": false').',
     "lengthMenu": '.$this->lengthMenu.',
-    "stateSave": true,
+    "stateSave": '.$this->stateSave.',
      '.$ajax.$columnDefs.'
-});','ready');
+});','initializecomponent');
           
           }
           return  $result.'</table>';

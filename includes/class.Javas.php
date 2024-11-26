@@ -142,33 +142,7 @@ $(document).ready(function() {
      $("input[lowercase=\'true\']").each(function(index){
       this.addEventListener("keypress", forceKeyPressLowercase, false);
     });
-    jQuery("input[data-sequential-uploads=\'true\']").fileupload({
-		url: \'/nframework/uploadfile.php\',
-		    sequentialUploads: true,
-		dataType: \'json\',
-		progressall: function (e, data) {
-			var mid=$(this).attr("id");
-	        var progress = parseInt(data.loaded / data.total * 100, 10);		
-	        var pg=$("#"+mid+"_progressbar");
-	        if (progress==100){
-	        	pg.hide();
-			}else{
-	        	pg.show();
-	        	pg.attr("data-value",progress);
-	        	//console.log(progress);
-	        }        
-	    },
-	    done:function (e, data) {
-	    	var mid=$(this).attr("id");
-	    	//console.log(data);
-	    	nfFileMakeTable(mid,data.result);
-	    	toast("Carga de archivo completa");
-	    },
-	    fail: function(e, data) {
-	    	var o=$(this).attr(\'id\');
-	  		alert(\'Fail!\'+o);
-		}
-	});
+  
 	
 	$(\'.nfinfoicon\').click(function() {
 	 var content=$(this).attr(\'content\');

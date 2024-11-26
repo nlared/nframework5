@@ -48,11 +48,11 @@ class class_config implements ArrayAccess {
 	}
 	public function offsetSet(mixed $offset, mixed $valor) :void{
         
-        /*if (is_null($offset)) {
+        if (is_null($offset)) {
             $this->contenedor[] = $valor;
         } else {
             $this->contenedor[$offset] = $valor;
-        }*/
+        }
     }
 	
     public function offsetExists($offset):bool {
@@ -115,10 +115,10 @@ class class_nframework{
 		}else{
 			
 			$this->csss=[
-				'000'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.0/themes/smoothness/jquery-ui.min.css',
+			//	'000'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.0/themes/smoothness/jquery-ui.min.css',
 				'004'=>'https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css',
-				'005rte'=>'https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css',
-				'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/css/jquery.fileupload.min.css',
+			//	'005rte'=>'https://cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css',
+			//	'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/css/jquery.fileupload.min.css',
 				'050'=>'https://cdn.nlared.com/metro4/metro.min.css',
 				'051'=>'https://cdn.nlared.com/metro4/icons.min.css',
 				'100'=>'https://cdn.nlared.com/nframework/4.5.0/nframework.min.css',
@@ -127,25 +127,40 @@ class class_nframework{
 			$this->jss=[
 				'000'=>'/main.js',
 				'001'=>'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.1.min.js',
-				'002'=>'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.0/jquery-ui.min.js',
-		//		'003'=>'https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js',
+			//	'002'=>'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.0/jquery-ui.min.js',
+			//	'003'=>'https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js',
 				'004'=>'https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js',
 				'005'=>'https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js',
-				'006'=>'https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js',
+			//	'006'=>'https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js',
 				'007'=>'https://cdn.nlared.com/jquery-parallax/parallax.min.js',
 				'008'=>'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js',
-				'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
+			//	'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
 				'050'=>'https://cdn.nlared.com/metro4/metro.min.js',
-				
-				
-				'100'=>'https://cdn.nlared.com/nframework/4.5.0/nframework.min.js',
+				'100'=>'https://cdn.nlared.com/nframework/4.5.1/nframework.min.js',
 			];
-			/*$this->csss['050']='https://cdn.metroui.org.ua/current/metro.css';
+		/*$this->csss['050']='https://cdn.metroui.org.ua/current/metro.css';
 			$this->csss['051']='https://cdn.metroui.org.ua/current/icons.css';
 			$this->jss['050']='https://cdn.metroui.org.ua/current/metro.js';
 			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.1/nframework.js?dev='.date('ymdhis');
 		//*/
+		
+		/*$this->csss['050']='https://cdn.metroui.org.ua/dev/metro.css';
+			$this->csss['051']='https://cdn.metroui.org.ua/dev/icons.css';
+			$this->jss['050']='https://cdn.metroui.org.ua/dev/metro.js';
+			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.1/nframework.js?dev='.date('ymdhis');
+		//*/
 		}
+	}
+	public function addfileupload(){
+		$this->jss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js';
+		$this->csss['049']='https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/css/jquery.fileupload.min.css';
+			
+	}
+	public function addjqueryui(){
+		$this->jss['002']='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.0/jquery-ui.min.js';
+		$this->csss['000']='https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.0/themes/smoothness/jquery-ui.min.css';
+			
+		
 	}
 	public function getAuthorizationHeader():string{
 	    $headers = null;

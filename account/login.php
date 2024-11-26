@@ -49,7 +49,11 @@ if(isset($_POST['op'])){
 //require_once 'common.php';
 //$nframework->jss['100a']='/account/account.js';
 $nframework->usecommon=true;
+$javas->addjs('
 
+$("#content").height("100vh");
+
+','resize');
 ?>
 <style>
 	input:-webkit-autofill,
@@ -68,11 +72,11 @@ $nframework->usecommon=true;
 </style>
 <link rel="stylesheet" href="account.css">
 <body id="body">
-    <div class="container-fluid p-4 p-20-md d-flex flex-justify-center bg-brand">
-        <div class="container">
-            <div class="row">
-                <div class="cell-md-5 d-flex flex-column flex-justify-center flex-align-center">
-                    <center>
+    <div class="container-fluid flex-justify-center bg-brand" style="height:100vh;" id="content">
+        <div class="grid h-100">
+            <div class="row h-100">
+                <div class="cell-md-6 mh-25-sm mh-100-md  p-4 p-20-md flex-justify-center flex-align-center" style="color: <?=$config['bgcolor']?>;background-color: <?=$config['themecolor']?>;">
+                    <center class="pos-relative pos-center">
                     	<img  src="/images/config/256/logo.png">
 						<h1 class="responsiveheader1" id=responsiveheader1><?=$config['title']?><br>
 							<div class= "centrar m-5">
@@ -82,15 +86,13 @@ $nframework->usecommon=true;
 						<p class="time" align="center"></p>
 					</center>
 				</div>
-                <div class="cell-md-2 d-flex flex-justify-center">
-                    <div style="width: 1px;" class="d-none d-block-md bg-brand-hr h-100"></div>
-                </div>
-                <div class="cell-md-5">
+                
+                <div class="cell-md-6 p-4 p-20-md">
 		        	<form method="POST" id="newform"
 		    			data-role="validator"
 		    			data-clear-invalid="2000"
 		    			data-on-error-form="invalidForm"
-		    			data-on-validate-form="validateForm">
+		    			data-on-validate-form="validateForm" class="pos-relative pos-center">
 		        		<div id="activar" align="center">
 				    		<h2 class="text-light"><?=$lng['login']?></h2>
 							<p class="time" align="center"></p>
@@ -124,14 +126,15 @@ $nframework->usecommon=true;
 		        		</div>
 		        		<hr class="thin mt-4 mb-4 bg-white">
 			        	<div id="ajax"></div>
-		        	</form>
+		        
     				<div id="actividadesCuenta" align="center/*">
-		        		<hr>
+		        		<hr class="bg-darkCrimson">
 		        		<?if($config['canregister']){ ?>
 		        			Don't have an account?&nbsp;<a href="new.php"><?=$lng['signup']?></a><br>
 			        	<? }?>
 			        	Forgot your password?&nbsp;<a href="recover.php"><?=$lng['recovery']?></a><br>
 		        	</div>
+		        </form>
 	        	</div>
         	</div>
     	</div>

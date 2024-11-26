@@ -3,9 +3,11 @@ require 'include.php';
 
 $loader1 = new \Twig\Loader\FilesystemLoader(__DIR__.'/templates');
 $loader2= new \Twig\Loader\FilesystemLoader(__DIR__.'/templates/basic');
-$loader = new \Twig\Loader\ChainLoader([$loader1, $loader2]);
+$loader3= new \Twig\Loader\FilesystemLoader($nframework->include_path.'/i18n/'.$nframework->lang);
+$loader = new \Twig\Loader\ChainLoader([$loader1, $loader2,$loader3]);
 $twig = new \Twig\Environment($loader, [
-    'cache' => false//__DIR__.'/../compilation_cache',
+    'cache' => false,//__DIR__.'/../compilation_cache',
+    'debug' => true,
 ]);
 
 
@@ -383,6 +385,46 @@ $router->addRoute('/getPayload', function(string $route,array $p){
 		echo "ok";
 	}
 });
+
+$router->addRoute('/privacy', function(string $route,array $p){
+	global $nframework,$twig,$config,$m;
+	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'Privacidad']);
+	if(empty($page)){
+		$template = $twig->load('privacy.html' );
+		$body= $template->render(['config'=>$config]);
+		echo $body;
+	}else{
+		echo $page['html'];
+	}
+},'GET');
+
+$router->addRoute('/terms', function(string $route,array $p){
+	global $nframework,$twig,$config,$m;
+	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'Terms']);
+	if(empty($page)){
+		$template = $twig->load('terms.html' );
+		$body= $template->render(['config'=>$config]);
+		echo $body;
+	}else{
+		echo $page['html'];
+	}
+},'GET');
+
+$router->addRoute('/righttoforget', function(string $route,array $p){
+	global $nframework,$twig,$config,$m;
+	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'righttoforget']);
+	if(empty($page)){
+		$template = $twig->load('righttoforget.html' );
+		$body= $template->render(['config'=>$config]);
+		echo $body;
+	}else{
+		echo $page['html'];
+	}
+},'GET');
+
+
+
+
 
 $router->addRoute('/privacidad', function(string $route,array $p){
 	global $nframework,$twig,$config;

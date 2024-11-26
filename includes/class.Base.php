@@ -580,7 +580,7 @@ class inputRte extends baseInput {
     public function __toString() {
     	global $nframework;
     	$nframework->jss['005rte']='//cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.js';
-    	//$nframework['css']['005rte']='//cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css';
+    	$nframework->csss['005rte']='//cdnjs.cloudflare.com/ajax/libs/jquery-te/1.4.0/jquery-te.min.css';
     	//$nframework['javasonce']['rte']='$(\'textarea[data-role="jqte"]\').jqte();';
     	
     	$_SESSION['ANTIXSS'][($this->id)][0]=['html'];
@@ -904,6 +904,8 @@ class inputfile extends baseInput{
 	public $accept;
 	function __toString(){
 		global $javas,$nframework;
+		$nframework->addjqueryui();
+    	$nframework->addfileupload();
 		$_SESSION['uploads4'][$this->id] = [
             'dir' => $this->dir,
             'formname' => $this->name,
@@ -998,7 +1000,41 @@ class inputFiles extends baseInput {
 	public $limit_time_start;
 	public $limit_time_end;
     public function __toString() {
+    	global $nframework,$javas;
     	
+    //		$javas->addjs('
+	//$("#'.$this->id.'").
+		$javas->addjs(
+    	'jQuery("input[data-sequential-uploads=\'true\']").fileupload({
+		url: \'/nframework/uploadfile.php\',
+		    sequentialUploads: true,
+		dataType: \'json\',
+		progressall: function (e, data) {
+			var mid=$(this).attr("id");
+	        var progress = parseInt(data.loaded / data.total * 100, 10);		
+	        var pg=$("#"+mid+"_progressbar");
+	        if (progress==100){
+	        	pg.hide();
+			}else{
+	        	pg.show();
+	        	pg.attr("data-value",progress);
+	        	//console.log(progress);
+	        }        
+	    },
+	    done:function (e, data) {
+	    	var mid=$(this).attr("id");
+	    	//console.log(data);
+	    	nfFileMakeTable(mid,data.result);
+	    	toast("Carga de archivo completa");
+	    },
+	    fail: function(e, data) {
+	    	var o=$(this).attr(\'id\');
+	  		alert(\'Fail!\'+o);
+		}
+	});
+');
+    	$nframework->addjqueryui();
+    	$nframework->addfileupload();
     	if($this->id=='')$this->id='veamos';
         $_SESSION['uploads4'][$this->id] = [
             'dir' => $this->dir,

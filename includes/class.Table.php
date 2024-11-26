@@ -31,16 +31,18 @@ class Table{
     public $db;
     public $collection;
     public $pipeline;
-   
+    public $footerCallback;
     public function __construct($options=[]){
     	global $nframework;
    
 		foreach ($options as $option => $value) {
     		$this->{$option}=$value;	        
         }
-        
+        $nframework->addjqueryui();
         $nframework->csss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.css';
         $nframework->jss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js';
+        $nframework->jss['0061']='https://cdn.nlared.com/nframework/4.5.1/dtpipeline.js';
+      
         
         //$nframework->jss['002']='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js';
 	    //$nframework->jss['060']='https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js';
@@ -145,7 +147,10 @@ class Table{
     '"scrollX": true , "responsive": false').',
     "lengthMenu": '.$this->lengthMenu.',
     "stateSave": '.$this->stateSave.',
-     '.$ajax.$columnDefs.'
+     '.$ajax.$columnDefs.
+     ($this->footerCallback!=''?',footerCallback:'.$this->footerCallback:'').'
+     
+     
 });','initializecomponent');
           
           }

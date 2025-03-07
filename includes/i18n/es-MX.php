@@ -127,4 +127,8 @@ $nframework->languages['es-MX']=[
 	'timezone'=>'Zona Horaria',
 	'bgcolor'=>'Color de Fondo',
 	'themecolor'=>'Color de tema',
+	'filemanager'=>'Administrador de Archivos',
+	'landscape'=>'Horizontal',
+	'portrait'=>'Vertical',
+	'orientation'=>'Orientación',
 ];

@@ -295,6 +295,7 @@ $result= '
     <div class="navview-content h-100">
         <div data-role="appbar" class="thebar pos-absolute bg-'.$this->darkcolor.' fg-white">
             <a href="#" class="app-bar-item d-block d-none-lg" id="paneToggle"><span class="mif-menu"></span></a>
+            '.$BreadCrumbs.'
             <div class="app-bar-container ml-auto">
             	'.$this->menuAdd.$user->notifications->icon().'
             	
@@ -303,16 +304,16 @@ $result= '
                 </div>
             </div>
         </div>
-        <div id="content-wrapper" class="content-inner h-100 '.($this->contentclass).' " style="overflow-y: auto">
-        <div class="row border-bottom bd-lightGray m-3">
-    <div class="cell-md-4 d-flex flex-align-center">
-        <h3 class="dashboard-section-title text-center text-left-md w-100">'.$this->title.'<small>'.$this->subtitle.'</small></h3>
-    </div>
-    <div class="cell-md-8 d-flex flex-justify-center flex-justify-end-md flex-align-center">
-        '.$BreadCrumbs.'
-    </div></div>
-        ';
-        
+        <div id="content-wrapper" class="content-inner h-100 '.($this->contentclass).' " style="overflow-y: auto">';
+        /*<div class="row border-bottom bd-lightGray m-3">
+		    <div class="cell-md-4 d-flex flex-align-center">
+		        <h3 class="dashboard-section-title text-center text-left-md w-100">'.$this->title.'<small>'.$this->subtitle.'</small></h3>
+		    </div>
+		    <div class="cell-md-8 d-flex flex-justify-center flex-justify-end-md flex-align-center">
+		        '.$BreadCrumbs.'
+		    </div>
+		</div>';
+        */
 }
         
         

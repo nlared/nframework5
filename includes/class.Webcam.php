@@ -3,12 +3,16 @@ class Webcam{
 	public String $path;
 	public String $exitpath='/';
 	function __toString():string{
-		global $nframework;
+		global $nframework,$javas;
 		$_SESSION['nf5photo']=[
 			'path'=>$this->path
 		];
 		$nframework->jss['101']='https://unpkg.com/webcam-easy/dist/webcam-easy.min.js';
-		$nframework->jss['102']='/nframework/webcam.js';
+		$nframework->jss['102']='/nframework/webcam.js?'.date('mdis');
+		$javas->addjs('
+
+		
+		');
 		$nframework->csss['102']='/nframework/webcam.css';
 		return '<main id="webcam-app">
 	<div class="form-control webcam-start webcam-on" id="webcam-control">
@@ -17,7 +21,8 @@ class Webcam{
 			<i></i> 
 			<span id="webcam-caption">on</span>
 			</label>      
-			<button id="cameraFlip" class="button large rounded dark d-none"><span class="mif-loop"></span></button>                  
+			<button id="cameraFlip" class="button large rounded dark d-none"><span class="mif-loop"></span></button>
+			<select id="videoSource"></select>
 	</div>
 	
 	<div id="errorMsg" class="col-12 col-md-6 alert-danger d-none">

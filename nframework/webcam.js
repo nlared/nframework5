@@ -2,11 +2,58 @@ const webcamElement = document.getElementById('webcam');
 const canvasElement = document.getElementById('canvas');
 const snapSoundElement = document.getElementById('snapSound');
 const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
+const videoSourceElement = document.getElementById('videoSource');
+let currentDeviceId = '';
+
+navigator.mediaDevices.enumerateDevices()
+.then(devices => {
+    devices.forEach(device => {
+        if (device.kind === 'videoinput') {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `Camera ${videoSourceElement.length + 1}`;
+            videoSourceElement.appendChild(option);
+        }
+    });
+})
+.catch(err => {
+    console.log(err.name + ": " + err.message);
+});
+videoSourceElement.onchange = () => {
+    currentDeviceId = videoSourceElement.value;
+    webcam.stop();
+    startWebcam(currentDeviceId);
+};
+
+function startWebcam(deviceId) {
+    const constraints = {
+        video: {
+            deviceId: deviceId ? { exact: deviceId } : undefined
+        }
+    };
+    console.log(constraints);
+    webcam.start(constraints)
+    .then(result => {
+        console.log("webcam started with device: ", deviceId);
+    })
+    .catch(err => {
+        console.log(err);
+    });
+}
+
+//startWebcam(currentDeviceId);
 
 $("#webcam-switch").change(function () {
     if(this.checked){
         $('.md-modal').addClass('md-show');
-        webcam.start()
+        //webcam.start()
+        const constraints = {
+	        video: {
+	            deviceId: currentDeviceId ? { exact: currentDeviceId } : undefined
+	        }
+	    };
+	    console.log(constraints);
+	    webcam.start(constraints)
             .then(result =>{
                cameraStarted();
                console.log("webcam started");

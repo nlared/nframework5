@@ -26,29 +26,16 @@ $title=new inputText(['dataset'=>&$dataset,'field'=>'title','caption'=>$nframewo
 $shortname=new inputText(['dataset'=>&$dataset,'field'=>'shortname','caption'=>$nframework->language['shortname'].':','required'=>true]);
 $tagline=new inputText(['dataset'=>&$dataset,'field'=>'tagline','caption'=>'Tagline:']);
 $image=new inputText(['dataset'=>&$dataset,'field'=>'image','caption'=>'Image:']);
-
 $description=new textarea(['dataset'=>&$dataset,'field'=>'description','caption'=>$nframework->language['description'].':','required'=>true]);
-
-
 $timezone=new select(['dataset'=>&$dataset,'field'=>'timezone','caption'=>$nframework->language['timezone'].':','options'=>$timezones]);
-
-
-
 $bgcolor=new inputcolor(['dataset'=>&$dataset,'field'=>'bgcolor','caption'=>$nframework->language['bgcolor'].':','default'=>'#FFFFFF']);
 $themecolor=new inputcolor(['dataset'=>&$dataset,'field'=>'themecolor','caption'=>$nframework->language['themecolor'].':','default'=>'#1BA1E2']);
-
-
-
 $theme=new select(['dataset'=>&$dataset,'field'=>'theme','caption'=>$nframework->language['theme'].':','options'=>$themes]);
 $homepagetype=new inputradios(['dataset'=>&$dataset,'field'=>'homepagetype','caption'=>$nframework->language['homepagetype'].':<br>','options'=>[
 	'page'=>'Page',
 	'blog'=>'Blog'
 	]]);
-
-
 $email=new inputText(['dataset'=>&$dataset,'field'=>'email','caption'=>$nframework->language['webmasteremail'].':']);
-
-//$logo=new inputText(['dataset'=>&$dataset,'field'=>'logo','caption'=>$nframework->language['logo'].':','default'=>'https://www.nlared.com/img/nlaredlogo5.png']);
 
 $logo=new inputfile([
 	'id'=>'logo',

@@ -26,6 +26,8 @@
         "v-matsuk/time-overlap-calculator": "^1.0",
         "google/cloud-storage": "*",
         "league/oauth2-facebook": "^2.0",
-        "spatie/pdf-to-image": "^3.1"
+        "spatie/pdf-to-image": "^3.1",
+        "picqer/php-barcode-generator": "^3.2",
+        "endroid/qr-code": "^6.0"
     }
 }

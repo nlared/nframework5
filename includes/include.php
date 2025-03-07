@@ -15,6 +15,29 @@ if( php_sapi_name() != "cli"){
 }
 require 'vendor/autoload.php';
 
+function remove_trailing_separator($path) {
+    return rtrim($path, DIRECTORY_SEPARATOR);
+}
+function array_diff_recursive($array1, $array2) {
+    $result = array();
+
+    foreach ($array1 as $key => $value) {
+        if (is_array($value)) {
+            if (!isset($array2[$key]) || !is_array($array2[$key])) {
+                $result[$key] = $value;
+            } else {
+                $recursiveDiff = array_diff_recursive($value, $array2[$key]);
+                if (!empty($recursiveDiff)) {
+                    $result[$key] = $recursiveDiff;
+                }
+            }
+        } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
+            $result[$key] = $value;
+        }
+    }
+
+    return $result;
+}
 
 function ifset($array,$key):mixed{
 	return isset($array[$key]) ? $array[$key] : null;
@@ -23,9 +46,16 @@ class class_config implements ArrayAccess {
 	private array $contenedor;
 	public function __construct(){
 		require 'config.php';
-		$this->contenedor=$config;
+		$this->contenedor=(array)$config;
 		
 		$this->contenedor['images']['config']['logo']=(empty($this->contenedor['image'])?'https://www.nlared.com/img/nlaredlogo5.png':$this->contenedor['image']);
+		if(empty($this->contenedor['users']['algos'])){
+			$this->contenedor['users']['algos']=['sha512'];
+		}
+		
+		if(empty($this->contenedor['users']['collection'])){
+			$this->contenedor['users']['collection']='users';
+		}
 	}
 	public function loadfromdb(){
 		global $m;
@@ -70,6 +100,8 @@ $config=new class_config();
 
 
 class class_nframework{
+	public String $title; 
+	public String $image; 
 	public array $language; 
 	public bool $isAjax=false;
 	public bool $https=false;
@@ -143,10 +175,10 @@ class class_nframework{
 			$this->jss['050']='https://cdn.metroui.org.ua/current/metro.js';
 			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.1/nframework.js?dev='.date('ymdhis');
 		//*/
-		
-		/*$this->csss['050']='https://cdn.metroui.org.ua/dev/metro.css';
-			$this->csss['051']='https://cdn.metroui.org.ua/dev/icons.css';
-			$this->jss['050']='https://cdn.metroui.org.ua/dev/metro.js';
+		/*
+		$this->csss['050']='https://cdn.metroui.org.ua/dev/metro.css?dev='.date('ymdhis');
+			$this->csss['051']='https://cdn.metroui.org.ua/dev/icons.css?dev='.date('ymdhis');
+			$this->jss['050']='https://cdn.metroui.org.ua/dev/metro.js?dev='.date('ymdhis');
 			$this->jss['100']='https://cdn.nlared.com/nframework/4.5.1/nframework.js?dev='.date('ymdhis');
 		//*/
 		}
@@ -220,33 +252,52 @@ class class_nframework{
 	
 	
 	function excelOut($spreadsheet,$filename){
-		$writer = new Xlsx($spreadsheet);
+		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment; filename="'.$filename.'.xlsx"');
 		$writer->save('php://output');
 		
 	}
 	
-	function excelOutPdf($spreadsheet,$filename){
-		$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Dompdf');
+	function excelOutPdf($spreadsheet,$filename,$converter='Dompdf',$disposition='inline'){//attachment
 		header('Content-Type: application/pdf');
-		header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
-		$writer->save('php://output');
-		
+		header('Content-Disposition: '.$disposition.'; filename="'.$filename.'.pdf"');
+		if($converter=='Dompdf'){
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Dompdf');
+			$writer->save('php://output');
+		}
+		if($converter=='unoconv'){
+			$tmpfname = tempnam(sys_get_temp_dir(), "xlsxpdf");
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+			$writer->save($tmpfname.'.xlsx');// This line will force the file to download	
+			shell_exec('unoconv -f pdf '.$tmpfname.'.xlsx');
+			$size=filesize($tmpfname.'.pdf');
+			header("Content-length: $size");
+			readfile($tmpfname.'.pdf');
+			unlink($tmpfname.'.xlsx');	
+			unlink($tmpfname.'.pdf');
+		}
+			
 	}
-	function wordOut($spreadsheet,$filename){
-		$writer = new Xlsx($spreadsheet);
+	function wordOut($word,$filename){
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment; filename="'.$filename.'.xlsx"');
-		$writer->save('php://output');
-		
+		$word->save('php://output');
 	}
 	
-	function wordOutPdf($spreadsheet,$filename){
-		$writer =  \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Dompdf');
+	function wordOutPdf($word,$filename){
 		header('Content-Type: application/pdf');
 		header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
-		$writer->save('php://output');
+		$tmpfname = tempnam(sys_get_temp_dir(), "xlsxpdf");
+		$word->saveAs($tmpfile .'.docx');
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="'.$filename.'.pdf"');
+		shell_exec('unoconv -f pdf '.$tmpfname.'.docx');
+		$size=filesize($tmpfname.'.pdf');
+		header("Content-length: $size");
+		readfile($tmpfname.'.pdf');
+		unlink($tmpfname.'.xlsx');	
+		unlink($tmpfname.'.pdf');
 		
 	}
 	function language(){
@@ -267,13 +318,20 @@ try{
     phpinfo();
 }
 if(!empty($config['timezone']))date_default_timezone_set($config['timezone']);
+$nframework->title=(!empty($config['title'])?$config['title']:'nframework 5');
+$nframework->image=(!empty($config['image'])?$config['image']:'/images/config///logo.png');
 
 use MongoDB\BSON\ObjectID;
-function toMongoId($item){
+function toMongoId($item):MongoDB\BSON\ObjectID{
 	return new MongoDB\BSON\ObjectID($item);
 }
-function toMongoIds(array $items){
-	return array_map('toMongoId',(array)$items);
+function toMongoIds(array $items):array{
+	$r=[];
+	//return array_map('toMongoId',$items);
+	foreach($items as $item){
+		$r[]=toMongoId($item);
+	}
+	return $r;
 }
 //error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_WARNING);
@@ -368,18 +426,27 @@ $nframework->lang_=str_replace('-','_',$nframework->lang);
 $nframework->langshort=substr($nframework->lang,0,2);
 require $nframework->include_path.'/i18n/'.$nframework->lang.'.php';
 $nframework->language=$nframework->languages[$nframework->lang];
-if (isset($_SESSION['user'])) {
-    $user = new User(array('username' => $_SESSION['user']));
-    if ($user->username == ''|| $user->disabled==true) {
+if (!empty($_SESSION['user']) && is_string($_SESSION['user']) && preg_match('/^[a-f\d]{24}$/i', $_SESSION['user'])) {
+	$user = new User(['_id'=>new MongoDB\BSON\ObjectID($_SESSION['user'])]);
+	if (empty($user->_id) || $user->disabled==true) {
         unset($_SESSION['user']);
         if($user->disabled==true){
         	header('location: /account/disabled.php');
         }else{
         	header('location: /'); // expulsar
         }
-        if($user->in('developers')){
-        	$developermode=true;	
-        }
+        exit();
+    }else{
+    	
+    	if(empty($user->sessions)||!in_array(session_id(),$user->sessions)){
+        	$tmp=$user->sessions;
+			$tmp[]=session_id();
+			$user->sessions=array_values(array_unique($tmp));
+    	}
+    }
+    
+    if($user->in('developers')){
+    	$developermode=true;	
     }
 } else {
     if (isset($requiresession)){
@@ -511,7 +578,7 @@ function nfshutdown(){
     <meta name="metro4:jquery" content="true">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="google-site-verification" content="' . $config['google-site-verification'] . '" />
-<meta name="Title" content="' .$config['title'].' '.$metas['title'] . '" />
+<meta name="Title" content="' .$nframework->title.' '.$metas['title'] . '" />
 <meta name="Author" content="' . $config['author'] . '" />
 <meta name="Subject" content="' . $metas['title'] . '" />
 <meta name="Description" content="' . $metas['description'] . '" />
@@ -523,22 +590,22 @@ function nfshutdown(){
 <meta name="metro4:week_start" content="1" />
 <meta property="og:url" content="'. $metas['url'] .'" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="'. $config['title'].' '.$metas['title'] .'" />
+<meta property="og:title" content="'. $nframework->title.' '.$metas['title'] .'" />
 <meta property="og:description" content="'. $metas['description'] .'" />
-<meta property="og:image" content="/images/config///logo.png" />
+<meta property="og:image" content="'.$nframework->image.'" />
 <meta property="twitter:card" content="/images/config/1200/628/logo.png" />
 <meta property="twitter:url" content="'. $config['url'] .'" />
-<meta property="twitter:title" content="'. $config['title'].' '.$metas['title'] .'" />
+<meta property="twitter:title" content="'. $nframework->title.' '.$metas['title'] .'" />
 <meta property="twitter:description" content="'.$metas['description'].'" />
 <meta property="twitter:image" content="/images/config///logo.png" />
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="application-name" content="'.$config['title'].'">
-<meta name="apple-mobile-web-app-title" content="'.$config['title'].'">
+<meta name="application-name" content="'.$nframework->title.'">
+<meta name="apple-mobile-web-app-title" content="'.$nframework->title.'">
 <meta name="msapplication-starturl" content="/">
 <link rel="apple-touch-icon" sizes="57x57" href="/images/config/57/logo.png" />
 <link rel="apple-touch-icon" sizes="144x144" href="/images/config/144/logo.png" />
-<title>' . $config['title'] .' '.$metas['title']. '</title>
+<title>' . $nframework->title .' '.$metas['title']. '</title>
     '.$csss.'
   </head>
   <body'.$nframework->body_addtag.'>

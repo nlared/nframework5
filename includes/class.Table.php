@@ -2,6 +2,8 @@
 
 class Table{
     private $ajax;
+    public $select;
+    public $order;
     public $id;
     public $addclass;
     public $columns;
@@ -25,7 +27,7 @@ class Table{
     public $nowrap=false;
     public $rendertargets=true;
     //public $lengthMenu='[[5,10, 25, 50, -1], [5,10, 25, 50, "Todos"]]';//TODO: hasta que arreglen en datatables.net
-    public $lengthMenu='[[5,10, 25, 50], [5,10, 25, 50]]';
+    public $lengthMenu=[[5,10, 25, 50], [5,10, 25, 50]];
     public $disablejs=false;
     public $stateSave='true';
     public $db;
@@ -41,7 +43,8 @@ class Table{
         $nframework->addjqueryui();
         $nframework->csss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.css';
         $nframework->jss['006']='https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js';
-        $nframework->jss['0061']='https://cdn.nlared.com/nframework/4.5.1/dtpipeline.js';
+        //$nframework->jss['0061']='https://cdn.nlared.com/nframework/4.5.1/dtpipeline.js';
+        $nframework->jss['0061']='https://cdn.nlared.com/nframework/4.5.1/dtpipeline.js?dev='.date('ymdhis');
       
         
         //$nframework->jss['002']='https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js';
@@ -114,20 +117,35 @@ class Table{
 	        			"render":function(data,type,row,meta){ return '.$target['render'].';}
 	        		}';
 	        	}
-	        	$columnDefs=',"columnDefs":['.implode(',',$columnDefss).']';
+	        	$columnDefs='['.implode(',',$columnDefss).']';
         	}else{
-        		$columnDefs='"columnDefs":'.json_encode($this->columnDefs);
+        		$columnDefs=json_encode($this->columnDefs);
         	}
         }
+        $json=[
+        	'language'=>$nframework->languages[$nframework->lang]['datatables'],
+        	'destroy'=>true,
+        	'scrollX'=>$this->scrollX,
+        	'responsive'=>$this->responsive,
+    		'lengthMenu'=> $this->lengthMenu,
+			'stateSave'=>$this->stateSave,
+			
+        ];
         
+        
+        if (count($this->columnDefs)>0){
+        	$json['columnDefs']='columnDefsssssss';
+        }
+        
+        foreach(['tooterCallback','select','order']as $prop){
+	        if(!empty($this->{$prop})){
+	          	$json[$prop]=$this->{$prop};
+	         }
+	    }  
          if($this->ajax){
-            $ajax='"processing": true,
-        	"serverSide": true,
-         	
-         	"ajax": $.fn.dataTable.pipeline( {
-            url: \'/nframework/datatable.php?id='.$this->id.'\',
-            pages: 5 // number of pages to cache
-        } )';
+            $json["processing"]= true;
+	        $json['serverSide']= true;
+	        $json['ajax']='ajaxconfig'; 
           	
           }else{
               $ajax='';
@@ -138,20 +156,14 @@ class Table{
                 $result.='</tbody>';
           } // TODO: Crear object by names
           if(!$this->disablejs){
-         $javas->addjs('
-    datatables["'.$this->id.'"]=$("#'.$this->id.'").DataTable( {
-    '.($nframework->lang!='en-US'?'language:'.json_encode($nframework->languages[$nframework->lang]['datatables']).',':'').'
-    "destroy": true,
-    '.($this->responsive?
-    '"scrollX": false, "responsive": true':
-    '"scrollX": true , "responsive": false').',
-    "lengthMenu": '.$this->lengthMenu.',
-    "stateSave": '.$this->stateSave.',
-     '.$ajax.$columnDefs.
-     ($this->footerCallback!=''?',footerCallback:'.$this->footerCallback:'').'
-     
-     
-});','initializecomponent');
+  	    	$javas->addjs('
+    datatables["'.$this->id.'"]=$("#'.$this->id.'").DataTable('.str_replace(
+    	['"ajaxconfig"',
+    	'"columnDefsssssss"'],[
+    	'$.fn.dataTable.pipeline({url: \'/nframework/datatable.php?id='.$this->id.'\',
+	        pages: 5 
+	     })',$columnDefs],
+    	json_encode($json)).');','initializecomponent');
           
           }
           return  $result.'</table>';

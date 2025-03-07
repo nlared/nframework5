@@ -200,7 +200,7 @@ $(document).ready(function() {
 		op.val($(this).val());
 	});
 	 '. implode("\r\n",$nframework->javasonce). $this->js['initializecomponent'] . '
-	 '. implode("\r\n",$nframework->javasonce). $this->js['ready'] . '
+	 '. $this->js['ready'] . '
 	 nfWindowResize();
 });
 ';

@@ -1,3 +1,4 @@
+<div class="container">
 <h1>Política de privacidad de {{config['title']}}</h1>
 <p>Esta Política de privacidad describe cómo se recopila, utiliza y comparte su información personal cuando visita o hace una compra en
 {{config['domain']}} (denominado en lo sucesivo el “Sitio”).</p>
@@ -10,7 +11,7 @@ Recopilamos Información del dispositivo mediante el uso de las siguientes tecno
 <h2>COOKIES</h2>
 Aquí tienes una lista de cookies que utilizamos. Las enlistamos para que puedas elegir si quieres optar por quitarlas o no.
 _session_id, unique token, sessional, Allows Shopify to store information about your session (referrer, landing page, etc).
-_shopify_visit, no data held, Persistent for 30 minutes from the last visit, Used by our website provider’s internal stats tracker to record the number of visits
+_shopify_visit, no datapppppp held, Persistent for 30 minutes from the last visit, Used by our website provider’s internal stats tracker to record the number of visits
 _shopify_uniq, no data held, expires midnight (relative to the visitor) of the next day, Counts the number of visits to a store by a single customer.
 cart, unique token, persistent for 2 weeks, Stores information about the contents of your cart.
 _secure_session_id, unique token, sessional
@@ -65,7 +66,7 @@ https://{{config['domain']}}/righttoforget.
 <h2>NO RASTREAR</h2>
 Tenga en cuenta que no alteramos las prácticas de recopilación y uso de datos de nuestro Sitio cuando vemos una señal de No rastrear desde su
 navegador.
-{% if config['UE'] %}
+{% if config['UE']=='on' %}
 [[INCLUIR SI LA TIENDA ESTÁ UBICADA EN EUROPA O SI TIENE CLIENTES EN EUROPA]]
 <h2>SUS DERECHOS</h2>
 Si usted es un residente europeo, tiene derecho a acceder a la información personal que tenemos sobre usted y a solicitar que su información personal sea
@@ -90,5 +91,4 @@ legales o reglamentarios.
 Para obtener más información sobre nuestras prácticas de privacidad, si tiene alguna pregunta o si desea presentar una queja, contáctenos por correo
 electrónico a quique@nlared.com o por correo mediante el uso de la información que se proporciona a continuación:
 {{config['address']}}
-
-
+</div>

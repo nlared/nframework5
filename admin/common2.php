@@ -40,6 +40,10 @@ $sidemenu.='
         <span class="icon"><span class="mif-users"></span></span>
         <span class="caption">'.$nframework->language['groups'].'</span>
     </a></li>
+    <li class="slide"><a href="/admin/filemanager/" >
+        <span class="icon"><span class="mif-files-empty"></span></span>
+        <span class="caption">'.$nframework->language['filemanager'].'</span>
+    </a></li>
     <li class="slide"><a href="/admin/errorlog" >
         <span class="icon"><span class="mif-bug"></span></span>
         <span class="caption">'.$nframework->language['logs'].'</span>
@@ -58,6 +62,8 @@ $sidebar=new Sidebar([
 'focuscolor'=> 'grayMouse',
 'title'=>'Admin',
 'sidemenu'=>$sidemenu]);
+if (!$nframework->isAjax()) {
 echo $sidebar;
+}
 
 

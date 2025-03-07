@@ -8,33 +8,34 @@ class User implements ArrayAccess {
     
     function __construct($info) {
         global $m, $config;
-        //$this->info=array('username'=>'guest');
-        //print_r($info);
         $this->m = $m;
         $this->info=[];
+        $find=$info;
         if ($config['sitedb'] != '') {
             $this->db = $config['sitedb']; ///checar usuario no injection
-            if (!isset($_SESSION['user'])) {
-                if (isset($info['password'])){
-                	$info['password'] = hash('sha512', $info['password']);
-                }
-                
-                filter_var($info['username'], FILTER_VALIDATE_EMAIL);
-                $this->info = (array)$this->m->{$config['sitedb']}->users->findOne($info);
-                
-                //TODO:Aguas
-                if($this->info['activationcode']!=$info['activationcode']){
-                	header('Location: /account/activate.php');
-                	exit();
-                }
-                
-            }else {
-                $this->info =(array) $this->m->{$config['sitedb']}->users->findOne(['username' => $_SESSION['user']]);
+            if (isset($info['_id'])){
+            	$info['_id']=tomongoid($info['_id']);
             }
+            if (isset($info['password'])){
+            	$passwords=[];
+               	foreach($config['users']['algos'] as $algo){
+	    			$passwords[] = hash($algo, $info['password']);
+		    	}
+		    	$find['password']=['$in'=>$passwords];
+            }
+            $info = $this->m->{$config['sitedb']}->users->findOne($find);
+            if(!empty($info)){
+	            $this->info=mongotoarray($info);
+	            if($this->info['activationcode']!=$info['activationcode']){
+	            	header('Location: /account/activate.php');
+	            	exit();
+	            }
+            }
+            
         }
         $this->notifications=new Notifications();
     }
-   
+    
     public function requireAuth(){
     	$_SESSION['nframework']['logiopage']=$_SERVER['DOCUMENT_URI'];
     	if($this->info['username']=='guest'){
@@ -255,7 +256,7 @@ class User implements ArrayAccess {
                 $result= false;
                 break;
             case '_id':
-                $result= (string)  $this->info['_id'];
+                $result= (string)  $this->info['_id']['oid'];
                 break;                
             default:
                // if ($this->info)) {

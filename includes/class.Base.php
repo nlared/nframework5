@@ -604,33 +604,68 @@ class inputMCE extends baseInput {
 	public $extended_valid_elements;
 	public $content_css;
     public function __toString() {
-    	global $nframework;
-    	//$nframework->jss['025']='https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.1.2/tinymce.min.js';
-	    $nframework->jss['025']='https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js';
-	    //$nframework->jss['025']='https://cdn.tiny.cloud/1/mrkd91ya8b36oxy2h9vgm9h3zqsvhev9bpsxx8jcb555afpm/tinymce/7/tinymce.min.js" referrerpolicy="origin';
-		
-		$nframework->javasonce['mce']='tinymce.init({
-	selector:\'textarea[data-role="tinyMCE"]\',
+    	global $nframework,$javas;
+    	/*
+    	'a11ychecker','advcode', 'editimage', 'powerpaste', 'tinymcespellchecker', 'tinydrive'
+    	*/
+    	
+    	$nframework->jss['025']='https://cdn.jsdelivr.net/npm/hugerte@1/hugerte.min.js';
+    	//$nframework->jss['905']='https://cdn.nlared.com/hugerte/nf.js';
+    	$nframework->jss['905']='https://cdn.nlared.com/hugerte/metro/plugin.js?n='.date('ymdHis');
+		/*if(!$nframework->onces['MCE']){
+			$javas->addjs("
+hugerte.PluginManager.add('myPlugin', function(editor, url) {
+    // Agregar un botón
+    editor.ui.registry.addButton('myButton', {
+        text: 'Mi Botón',
+        onAction: function() {
+            editor.insertContent('<p>¡Hola desde el plugin!</p>');
+        }
+    });
+
+    // Agregar un comando
+    editor.addCommand('myCommand', function() {
+        alert('Comando personalizado ejecutado');
+    });
+
+    // Evento de inicialización
+    editor.on('init', function() {
+        console.log('Plugin personalizado inicializado');
+    });
+});
+			
+			");
+			
+			$nframework->onces['MCE']=true;
+		}
+		//*/
+    	//toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | myButton',
+    	
+		$javas->addjs("hugerte.init({
+	selector:'textarea#".$this->id."',
 	plugins: [
-    \'a11ychecker\', \'advcode\', \'advlist\', \'anchor\', \'autolink\', \'codesample\', \'fullscreen\', \'help\',
-    \'image\', \'editimage\', \'tinydrive\', \'lists\', \'link\', \'media\', \'powerpaste\', \'preview\',
-    \'searchreplace\', \'table\', \'tinymcespellchecker\', \'visualblocks\', \'wordcount\', \'code\'
-  
+    'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen','help',
+    'image', 'lists', 'link', 'media', 'preview',
+    'searchreplace', 'table', 'visualblocks', 'wordcount', 'code', 'nframework'
     ],
-	image_list: \'/nframework/tinymceimgs.php?_id='.$this->id.'\',
-	convert_urls: false,'.
+    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | nfgrid',
+	image_list: '/nframework/tinymceimgs.php?_id=".$this->id."',
+	convert_urls: false,".
 	($nframework->lang!='en-US'?
-	'language_url: \'//cdn.nlared.com/tinymce/langs/'.$nframework->lang_.'.js\',
-	language: \''.$nframework->lang_.'\',
-	':'').'
-	content_css: \''.$this->content_css.'\',
+	"language_url: '//cdn.nlared.com/hugerte/langs/".$nframework->lang_.".js',
+	language: '".$nframework->lang_."',
+	":"")."
+	content_css: '".$this->content_css."',
 	relative_urls: false,
-	//document_base_url: \'//' .$_SERVER['HTTP_HOST'].$this->baseurl.'\',
-    image_uploadtab: '.($this->upload?'true':'false').',
-    images_upload_url: \'/nframework/tinymceupload.php?_id='.$this->id.'\',
-	images_upload_base_path: \'' .$this->baseurl.'\',
-	extended_valid_elements: \''.$this->extended_valid_elements.'\'
-});';
+	//document_base_url: '//" .$_SERVER['HTTP_HOST'].$this->baseurl."',
+    image_uploadtab: ".($this->upload?'true':'false').",
+    images_upload_url: '/nframework/tinymceupload.php?_id=".$this->id."',
+	images_upload_base_path: '" .$this->baseurl."',
+	extended_valid_elements: '".$this->extended_valid_elements."',
+	
+	
+});");
+		
     	$_SESSION['ANTIXSS'][($this->id)][0]=['html'];
     	$_SESSION['ANTIXSS'][($this->id)]=['html'];
         
@@ -907,7 +942,7 @@ class inputfile extends baseInput{
 		$nframework->addjqueryui();
     	$nframework->addfileupload();
 		$_SESSION['uploads4'][$this->id] = [
-            'dir' => $this->dir,
+            'dir' => dirname($this->path),
             'formname' => $this->name,
             'delete'=>$this->delete,
             'download'=>$this->download,
@@ -962,7 +997,8 @@ class inputfile extends baseInput{
         }).prop("disabled", !$.support.fileInput)
       .parent().addClass($.support.fileInput ? undefined : "disabled");
 ','ready');
-		return '<input type="file" id="'.$this->id.'" name="'.$this->id.'"'.
+		return ($this->caption!=''?'<label for="'.$this->id.'">'.$this->caption.'</label>':'').'<p>'.
+		'<input type="file" id="'.$this->id.'" name="'.$this->id.'"'.
 		($this->disabled ? ' disabled' : '') .
         ($this->prepend ? ' data-prepend="'.$this->prepend.'"' : '').
         ($this->drop ? ' data-mode="drop" data-files-title="archivo(s) seleccionado(s)" data-drop-title="<strong>Selecciona archivo(s)</strong>" ' : '') .
@@ -1230,6 +1266,7 @@ class dataset  {
     public $nameprefix;
     public $simpleid;
     public $autosave;
+    public $mongo_session;
     public $position;
     public $fieldprefix;
     public function addElement(&$element){
@@ -1274,31 +1311,43 @@ class dataset  {
         return isset($this->info[$name]);
     }
     public function __set($name, $value) {
-        if ($name!='_id') {            
-            if ($this->info[$name] != $value) {
-                $this->info[$name] = $value;
-                if ($this->_id==''){
-                	$r=$this->collection->insertOne($this->info);
-                	$this->info['_id']=$r['_id'];
-                }else{
-                	$this->collection->updateOne(['_id'=>$this->_id ],['$set'=>[$name=>$value]]
-		                ,['upsert'=>true, ]);
-		               $this->info[$name]=$value;
-		      //       echo "set"; 
-		       //      print_r($this->_id);  	
-                	//$this->collection->save($this->info);
-                }
-                //$this->col->update(['_id'=>$this->id],['$set'=>[$name=>$value]]);            
-            }        
+        if ($name!='_id') {
+        	if(property_exists($this,$name)){
+        		$this->{$name}=$value;
+        	}else{
+	        	$options=[];
+	        	if(!empty($this->mongo_session)){
+	        		$options['session']=$this->mongo_session;
+	        	}
+	            if ($this->info[$name] != $value) {
+	                $this->info[$name] = $value;
+	                if ($this->_id==''){
+	                	$r=$this->collection->insertOne($this->info,$options);
+	                	$this->info['_id']=$r['_id'];
+	                }else{
+	                	$options['upsert']=true;
+	                	$this->collection->updateOne(['_id'=>$this->_id ],['$set'=>[$name=>$value]],$options);
+			               $this->info[$name]=$value;
+			      //       echo "set"; 
+			       //      print_r($this->_id);  	
+	                	//$this->collection->save($this->info);
+	                }
+	                //$this->col->update(['_id'=>$this->id],['$set'=>[$name=>$value]]);            
+	            }
+        	}   
         }
         return true;
     }
     public function __unset($name) {
        if ($name!='_id'){
+       		$options=[];
+        	if(!empty($this->mongo_session)){
+        		$options['session']=$this->mongo_session;
+        	}
             unset($this->info[$name]);            
             $this->collection->updateOne(
                 	['_id'=>$this->info['_id']],
-                	['$unset'=>[$name=>'']]);
+                	['$unset'=>[$name=>'']],$options);
             
             //$this->col->update(['_id'=>$this->id],['$unset'=>[$name=>1]]);            
         }
@@ -1322,6 +1371,10 @@ class dataset  {
         return $result;
     }
     public function save(){
+		$options=[];
+    	if(!empty($this->mongo_session)){
+    		$options->session=$this->mongo_session;
+    	}
         foreach($this->elements as $element){
         	$element->value=$element->__toMongo($_POST[$this->nameprefix][$element->field]);
             if($element->disabled!=false&& !$element->is_valid($_POST[$this->nameprefix][$element->field])){
@@ -1352,16 +1405,16 @@ class dataset  {
 	        }
 	        if($punto){
 	        //	echo '<textarea>'.print_r($changes,true).'</textarea>';
-	        	$this->collection->updateOne(['_id'=>$this->_id],$changes,['upsert'=>true]);
+	        	$this->collection->updateOne(['_id'=>$this->_id],$changes,['upsert'=>true],$options);
 	        }else{
-	        	$this->collection->updateOne(['_id'=>$this->_id],['$set'=>$this->info],['upsert'=>true]);
+	        	$options['upsert']=true;
+	        	$this->collection->updateOne(['_id'=>$this->_id],['$set'=>$this->info],$options);
 	        }
 	         return false;
         }else{
         	// $errores;
         	return $errores;
         }
-        
     }
 }
 

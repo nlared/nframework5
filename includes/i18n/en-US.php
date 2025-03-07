@@ -106,4 +106,9 @@
 			'timezone'=>'Time Zone',
 			'bgcolor'=>'Background Color',
 			'themecolor'=>'Theme Color',
+			'filemanager'=>'File Manager',
+			'landscape'=>'Landscape',
+			'portrait'=>'Portrait',
+			'orientation'=>'Orientation',
+			
         ];

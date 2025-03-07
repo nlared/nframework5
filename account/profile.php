@@ -32,9 +32,7 @@ $_SESSION['imagesresize']['usuarios']=[
 	'src'=>$_SERVER['DOCUMENT_ROOT'].'/profiles/',
 	'default'=>$_SERVER['DOCUMENT_ROOT'].'/account/Profile.png'
 ];
-$userincludes=[
-	'direccion'=>__DIR__.'/direccion.php'
-	];
+
 
 foreach($userincludes as $includetitle=>$includefile){
 	include str_replace('.php','.inc.php',$includefile);

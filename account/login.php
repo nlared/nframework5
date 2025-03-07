@@ -15,15 +15,25 @@ if(isset($_POST['op'])){
 		'username'=>  strtolower(trim($login['username'])),
 		'password'=>trim($login['password'])
 		]);
-	if($user->username!=''){
-		$tmp=(array)$user->sessions;
+		
+		//print_r($user);
+		//exit();
+	if(!empty($user->_id)){
+		/*$tmp=(array)$user->sessions;
 		$tmp[]=session_id();
 		$user->sessions=array_values(array_unique($tmp));
+		*/
+		$_SESSION['user']=$user->_id;
 		
-		
-		$_SESSION['user']=$user->username;
-		//echo $_SESSION['user'];
+	//	print_r($_SESSION);
 		session_write_close();
+		
+		//exit();
+		
+		
+		//echo $_SESSION['user'];
+		
+        
         if( $_SESSION['nframework']['logiopage']!='' && $_SESSION['nframework']['logiopage']!='/account/login.php'){
             header('location: '.$_SESSION['nframework']['logiopage']);
         }else{

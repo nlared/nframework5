@@ -16,7 +16,7 @@ $dataset=new dataset(
     'nameprefix'=>'data']
 );
 
-$password=new inputText(['id'=>'password','caption'=>$nframework->language['password'].':','required'=>true]);
+$password=new inputText(['id'=>'password','name'=>"password",'caption'=>$nframework->language['password'].':','required'=>true]);
 $username=new inputText(['dataset'=>&$dataset,'field'=>'username','caption'=>$nframework->language['username'].':','required'=>true]);
 
 if(file_exists(include $_SERVER['DOCUMENT_ROOT'].'/admins/users/user.php')){

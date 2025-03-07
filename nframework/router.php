@@ -388,6 +388,7 @@ $router->addRoute('/getPayload', function(string $route,array $p){
 
 $router->addRoute('/privacy', function(string $route,array $p){
 	global $nframework,$twig,$config,$m;
+	$nframework->usecommon=true;
 	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'Privacidad']);
 	if(empty($page)){
 		$template = $twig->load('privacy.html' );
@@ -400,6 +401,7 @@ $router->addRoute('/privacy', function(string $route,array $p){
 
 $router->addRoute('/terms', function(string $route,array $p){
 	global $nframework,$twig,$config,$m;
+	$nframework->usecommon=true;
 	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'Terms']);
 	if(empty($page)){
 		$template = $twig->load('terms.html' );
@@ -412,6 +414,7 @@ $router->addRoute('/terms', function(string $route,array $p){
 
 $router->addRoute('/righttoforget', function(string $route,array $p){
 	global $nframework,$twig,$config,$m;
+	$nframework->usecommon=true;
 	$page=$m->{$config['sitedb']}->pages->findOne(['title'=>'righttoforget']);
 	if(empty($page)){
 		$template = $twig->load('righttoforget.html' );

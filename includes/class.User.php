@@ -25,7 +25,9 @@ class User implements ArrayAccess {
             }
             $info = $this->m->{$config['sitedb']}->users->findOne($find);
             if(!empty($info)){
+            	$id=(string)$info->_id;
 	            $this->info=mongotoarray($info);
+	            $this->info['_id']=$id;
 	            if($this->info['activationcode']!=$info['activationcode']){
 	            	header('Location: /account/activate.php');
 	            	exit();
@@ -256,7 +258,7 @@ class User implements ArrayAccess {
                 $result= false;
                 break;
             case '_id':
-                $result= (string)  $this->info['_id']['oid'];
+                $result= (string)  $this->info['_id'];
                 break;                
             default:
                // if ($this->info)) {

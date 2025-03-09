@@ -717,6 +717,7 @@ class inputRadios extends baseOptions{
             $result.='<input type="radio" name="'. $this->name.'" id="' . $this->id .'_'. $contas . '" value="' . $value 
             . '" data-role="radio" data-caption="'.$text.'"' .
            	' labelid="'.$this->id.'" data-ovalidate="'.$this->data_validate().'"'.
+           	($this->onchange?' data-on-change="'.$this->onchange.'"':'').
             ($this->value == $value ? ' checked ' : ' ') .'/>';
             $contas++;
         }

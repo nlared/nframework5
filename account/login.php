@@ -12,28 +12,12 @@ $lng=$nframework->language();
 $login=$_POST['login'];
 if(isset($_POST['op'])){
 	$user= new User([
-		'username'=>  strtolower(trim($login['username'])),
+		'username'=> ['$regex' => trim($login['username']), '$options' => 'i'],
 		'password'=>trim($login['password'])
 		]);
-		
-		//print_r($user);
-		//exit();
 	if(!empty($user->_id)){
-		/*$tmp=(array)$user->sessions;
-		$tmp[]=session_id();
-		$user->sessions=array_values(array_unique($tmp));
-		*/
 		$_SESSION['user']=$user->_id;
-		
-	//	print_r($_SESSION);
 		session_write_close();
-		
-		//exit();
-		
-		
-		//echo $_SESSION['user'];
-		
-        
         if( $_SESSION['nframework']['logiopage']!='' && $_SESSION['nframework']['logiopage']!='/account/login.php'){
             header('location: '.$_SESSION['nframework']['logiopage']);
         }else{

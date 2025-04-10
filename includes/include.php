@@ -15,6 +15,13 @@ if( php_sapi_name() != "cli"){
 }
 require 'vendor/autoload.php';
 
+class nFrameworkException extends Exception {
+    public function errorMessage() {
+        // Error message
+        return "Error [{$this->getCode()}]: {$this->getMessage()} at {$this->getFile()}:{$this->getLine()}";
+    }
+}
+
 function remove_trailing_separator($path) {
     return rtrim($path, DIRECTORY_SEPARATOR);
 }
@@ -99,6 +106,7 @@ class class_config implements ArrayAccess {
 $config=new class_config();
 
 
+
 class class_nframework{
 	public String $title; 
 	public String $image; 
@@ -165,7 +173,7 @@ class class_nframework{
 				'005'=>'https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js',
 			//	'006'=>'https://cdn.datatables.net/v/dt/dt-1.13.6/r-2.5.0/sc-2.2.0/sl-1.7.0/datatables.min.js',
 				'007'=>'https://cdn.nlared.com/jquery-parallax/parallax.min.js',
-				'008'=>'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js',
+				'008'=>'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js',
 			//	'049'=>'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
 				'050'=>'https://cdn.nlared.com/metro4/metro.min.js',
 				'100'=>'https://cdn.nlared.com/nframework/4.5.1/nframework.min.js',
@@ -320,6 +328,9 @@ try{
 if(!empty($config['timezone']))date_default_timezone_set($config['timezone']);
 $nframework->title=(!empty($config['title'])?$config['title']:'nframework 5');
 $nframework->image=(!empty($config['image'])?$config['image']:'/images/config///logo.png');
+
+
+
 
 use MongoDB\BSON\ObjectID;
 function toMongoId($item):MongoDB\BSON\ObjectID{
@@ -496,7 +507,7 @@ function nfshutdown(){
 	}
 
 	ob_end_flush();
-	
+	$javasstr='';
 	if(count($nframework->javas)>0){
 			if(empty($noobfuscate)){
 				$packer = new Tholu\Packer\Packer(implode(";\n",$nframework->javas), 'Normal', true, false, true);
@@ -670,7 +681,8 @@ function secureform(
 		bool $files=false,
 		string $id='',
 		string $onvalidateform='',
-		string $onbeforesubmit=''
+		string $onbeforesubmit='',
+		string $class=""
 	):string{
 	global $nframework;
 //	$csrftoken = csrfToken($arg['action']);
@@ -690,7 +702,7 @@ $.each(log, function(){
 });
 toast(msg,null,5000);
 "'.($onbeforesubmit==''?'': ' data-on-before-submit="'.$onbeforesubmit. '"').
-($onvalidateform==''?'': ' data-on-validate-form="'.$onvalidateform. '"').'>
+($onvalidateform==''?'': ' data-on-validate-form="'.$onvalidateform. '"').' class="'.$class.'">
 <input type="hidden" name="op" id="'.$opid.'" value="">
 <input type="hidden" name="CSRFToken" value="'.csrfToken($action).'">';
 	//$nframework['secureformcounter']++;

@@ -54,6 +54,7 @@ class baseInput  {
     public $name;
     public $nameprefix;
     public $dataset;
+    public $nfembeded;
     public $field;
     public $addclass;
     public $disabled;
@@ -135,6 +136,13 @@ class baseInput  {
         	$this->value=$this->default;
         }
         
+        
+        if(!empty($this->nfembeded)){
+        	if($this->name=='' &$this->field!=''){
+                $this->name=$this->field;
+            }
+            $this->name=  $this->nfembeded->nameprefix.'['.$this->name.']';
+        }
         
         if($this->dataset!=''){
             if($this->name=='' &$this->field!=''){
@@ -938,6 +946,7 @@ class inputfile extends baseInput{
 	public $dir;
 	public $drop;
 	public $accept;
+	public $onDone;
 	function __toString(){
 		global $javas,$nframework;
 		$nframework->addjqueryui();
@@ -960,32 +969,33 @@ class inputfile extends baseInput{
         ];
 		
 		$javas->addjs('
+	
+	$.ajax({
+			url: \'/nframework/uploadfile.php\',
+			method:"POST",
+			data: "mid='.$this->id.'", 
+			dataType: \'json\',
+			success: function(data) {
+				nffileupload_'.$this->id.'(data);
+				
+			}
+		});	
+	function nffileupload_'.$this->id.'(data){
+		'.$this->onDone.'
+	}
+	$("#'.$this->id.'_progress").hide();
+	
 	$("#'.$this->id.'").fileupload({
       url:  \'/nframework/uploadfile.php\',
       dataType: "json",
       maxNumberOfFiles: 1,
       done: function (e, data) {
-          $.each(data.result.files, function (index, file) {
-              $("<p/>").text(file.name).appendTo("#files");
-          });
-          	
-          	$.ajax({
-				url: "/nframework/preview.php?id='.$this->id.'", 
-				cache: false,
-				success: function (result) {
-					var bhtml="";
-					
-					$.each(result.links, function (index, link) {
-	            		bhtml+=\'<img src="\'+link+\'" loading="lazy">\';
-					});
-	    			$("#'.$this->id.'_preview").html(bhtml);
-				}
-			});
+          	nffileupload_'.$this->id.'(data.result);
       },
       progressall: function (e, data) {
         	var progress = parseInt(data.loaded / data.total * 100, 10);		
 	        var pg=$("#'.$this->id.'_progress");
-	        if (progress==100){
+	        if (progress==100||progress==0){
 	        	pg.hide();
 			}else{
 	        	pg.show();
@@ -1261,19 +1271,26 @@ class datasetpdo{
 #[\AllowDynamicProperties]
 class dataset  {
     public $elements=[]; 
-    private $collection;
+    public $collection;
     private $_id;
     public $info=[];
     public $nameprefix;
     public $simpleid;
-    public $autosave;
+    public $autosave; //pensar
     public $mongo_session;
-    public $position;
-    public $fieldprefix;
+    public $position;// se va
+    public $fieldprefix;// se va
+    public $historic=false;
+    private $nfprotected;
     public function addElement(&$element){
         $this->elements[]=$element;       
     }
     public function __construct($options,$query=[]) {              
+    	$this->nfprotected=[
+    		'_id',
+    		'nfversions',
+    		'nfprotected'
+    		];
         foreach ($options as $option=>$value){
             $this->{$option}=$value;
         }
@@ -1312,7 +1329,7 @@ class dataset  {
         return isset($this->info[$name]);
     }
     public function __set($name, $value) {
-        if ($name!='_id') {
+        if (!in_array($name,$this->nfprotected)) {
         	if(property_exists($this,$name)){
         		$this->{$name}=$value;
         	}else{
@@ -1323,12 +1340,26 @@ class dataset  {
 	            if ($this->info[$name] != $value) {
 	                $this->info[$name] = $value;
 	                if ($this->_id==''){
+	                	if($this->historic){
+        					$this->createversion();
+        				}
+	                	
 	                	$r=$this->collection->insertOne($this->info,$options);
 	                	$this->info['_id']=$r['_id'];
 	                }else{
 	                	$options['upsert']=true;
-	                	$this->collection->updateOne(['_id'=>$this->_id ],['$set'=>[$name=>$value]],$options);
-			               $this->info[$name]=$value;
+	                	$operations=[
+	                		'$set'=>[$name=>$value]
+	                	];
+	                	
+	                	$this->info[$name]=$value;
+	                	if($this->historic){
+        					$this->createversion();
+        					$operations['$set']['nfversions']=$this->info['nfversions'];
+        				}
+	                	
+	                	$this->collection->updateOne(['_id'=>$this->_id ],$operations,$options);
+			               
 			      //       echo "set"; 
 			       //      print_r($this->_id);  	
 	                	//$this->collection->save($this->info);
@@ -1346,9 +1377,17 @@ class dataset  {
         		$options['session']=$this->mongo_session;
         	}
             unset($this->info[$name]);            
+            $operations=[
+            	'$unset'=>[$name=>1]
+            ];
+            if($this->historic){
+        		$this->createversion();
+        		$operations['$set']['nfversions']=$this->info['nfversions'];
+        	}
+            
             $this->collection->updateOne(
-                	['_id'=>$this->info['_id']],
-                	['$unset'=>[$name=>'']],$options);
+               	['_id'=>$this->info['_id']],
+               	[$operations],$options);
             
             //$this->col->update(['_id'=>$this->id],['$unset'=>[$name=>1]]);            
         }
@@ -1371,6 +1410,21 @@ class dataset  {
         }
         return $result;
     }
+    private function createversion(){
+    	global $user;
+		$versiones=(array)$this->info['nfversions'];
+    	$olddata=$this->info;
+    	unset($olddata['_id']);
+        unset($olddata['nfversions']);
+        if(count($olddata)>0){
+	        $versiones[]=[
+	        	'user'=>$user->_id,
+	        	'fh'=>new MongoDB\BSON\UTCDateTime(),
+	        	'data'=>$olddata
+	        ];
+        	$this->info['nfversions']=$versiones;
+        }
+    }
     public function save(){
 		$options=[];
     	if(!empty($this->mongo_session)){
@@ -1382,6 +1436,8 @@ class dataset  {
                 $errores.='Error en:'.$element->field.'<br/>';
             }
         }
+        
+        
         if ($errores==''){
         	$toset=[];
         	$tounset=[];
@@ -1404,6 +1460,10 @@ class dataset  {
 	        		}
 	        	}
 	        }
+	        if($this->historic){
+	        	$this->createversion();
+	        	$toset['nfversions']=$this->info['nfversions'];
+    	    }
 	        if($punto){
 	        //	echo '<textarea>'.print_r($changes,true).'</textarea>';
 	        	$this->collection->updateOne(['_id'=>$this->_id],$changes,['upsert'=>true],$options);

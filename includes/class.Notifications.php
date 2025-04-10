@@ -23,30 +23,32 @@ class Notification{
 class Notifications{
 	public $count=0;
 	public function __construct(){
-		global $m,$config;
-		foreach($m->{$config["sitedb"]}->notifications->find(['to'=>(string)$user->_id]) as $d){
-			$count++;
-		}
-		$this->count=$count;
+		
+		
 	}
 	
 	public function icon():string
 	{
-		return '<a href="#" class="app-bar-item " id="nf-notifications">
-		<span class="mif-bell"></span>
-		<span class="badge fg-white mt-2 mr-1">'.$this->count.'</span>
+		global $m,$config;
+		$count=0;
+		foreach($m->{$config["sitedb"]}->notifications->find(['to'=>(string)$user->_id]) as $d){
+			$nots.=<<<DATA
+			<li data-icon="<span class='mif-folder fg-orange'>"
+			        data-caption="$d->caption"
+			        data-content="$d->content">
+		    </li>
+DATA;
+			$count++;
+		}
+		
+		return '
+		<a href="#" class="app-bar-item " id="nf-notifications">
+			<span class="mif-bell"></span>
+			'.($count>0?'<span class="badge fg-white mt-2 mr-1">{$count}</span>':'').'
 		</a>
 		<div class="user-block shadow-1 " data-role="collapse" data-collapsed="true">
-	        	<ul data-role="listview" data-view="content" data-select-node="true">
-				    <li data-icon="<span class=\'mif-folder fg-orange\'>"
-				        data-caption="Video"
-				        data-content="<div class=\'mt-1\' data-role=\'progress\' data-value=\35\' data-small=\'true\'>"></li>
-				    <li data-icon="<span class=\'mif-folder fg-cyan\'>"
-				        data-caption="Images"
-				        data-content="<div class=\'mt-1\' data-role=\'progress\' data-value=\'78\' data-small=\'true\'>"></li>
-				   
-				</ul>
-		</div>
-    ';
+        	'.$nots.'
+		</div>';
+
 	}
 }

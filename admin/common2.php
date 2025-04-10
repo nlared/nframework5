@@ -51,9 +51,9 @@ $sidemenu.='
 	';
 
 
-
-include $_SERVER['DOCUMENT_ROOT'].'/admins/common2.php';
-
+if(file_exists($_SERVER['DOCUMENT_ROOT'].'/admins/common2.php')){
+	include $_SERVER['DOCUMENT_ROOT'].'/admins/common2.php';
+}
 
 
 $sidebar=new Sidebar([
@@ -64,6 +64,7 @@ $sidebar=new Sidebar([
 'sidemenu'=>$sidemenu]);
 if (!$nframework->isAjax()) {
 echo $sidebar;
+
 }
 
 

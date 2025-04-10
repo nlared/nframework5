@@ -28,12 +28,12 @@ class User implements ArrayAccess {
             	$id=(string)$info->_id;
 	            $this->info=mongotoarray($info);
 	            $this->info['_id']=$id;
-	            if($this->info['activationcode']!=$info['activationcode']){
+	            if(!empty($this->info['activationcode'])&& $this->info['activationcode']!=$info['activationcode']){
 	            	header('Location: /account/activate.php');
 	            	exit();
 	            }
+	            
             }
-            
         }
         $this->notifications=new Notifications();
     }
@@ -225,7 +225,7 @@ class User implements ArrayAccess {
                 if ($this->info[$name] != $value) {
                     $this->info[$name] = $value;
                     $this->m->{$this->db}->users->updateOne(
-                    	['_id'=>$this->info['_id']],
+                    	['_id'=>tomongoid($this->info['_id']) ],
                     	['$set'=>[$name=>$value]]
                     );
                 }
@@ -241,7 +241,7 @@ class User implements ArrayAccess {
             default:
                 unset($this->info[$name]);
                 $this->m->{$this->db}->users->updateOne(
-                	['_id'=>$this->info['_id']],
+                	['_id'=>tomongoid($this->info['_id'])],
                 	['$unset'=>[$name=>'']]);
         }
     }

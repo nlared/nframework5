@@ -44,6 +44,11 @@ $logo=new inputfile([
 	'path'=>$_SERVER['DOCUMENT_ROOT'].'/img/nf/logo.png',
 	'accept'=>'.png',
 	'drop'=>false,
+	'onDone'=><<<js
+	if (data.files.length==1){
+		$("#img-container").html('<img width="256" src="/images/config/256/logo.png?time='+Date.now()+'">');	
+	}
+js
 ]);
 
 
@@ -127,7 +132,11 @@ if ($nframework->isAjax()) {
 				<div class="cell col"><?=$description?></div>
 			</div>
 			<div class="row">
-				<div class="cell col"><?=$logo?></div>
+				<div class="cell col"><?=$logo?>
+				<div id="img-container">
+	
+				</div>
+				</div>
 			</div>
 			<div class="row">
 				<div class="cell col"><?=$bgcolor?></div>

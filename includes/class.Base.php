@@ -648,15 +648,10 @@ hugerte.PluginManager.add('myPlugin', function(editor, url) {
 		}
 		//*/
     	//toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | myButton',
-    	
+    //code	
 		$javas->addjs("hugerte.init({
 	selector:'textarea#".$this->id."',
-	plugins: [
-    'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen','help',
-    'image', 'lists', 'link', 'media', 'preview',
-    'searchreplace', 'table', 'visualblocks', 'wordcount', 'code', 'nframework'
-    ],
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | nfgrid',
+	plugins: 'accordion advlist anchor autolink autosave charmap code codesample directionality emoticons fullscreen help image insertdatetime link lists media nonbreaking pagebreak preview quickbars save searchreplace table template visualblocks visualchars wordcount',
 	image_list: '/nframework/tinymceimgs.php?_id=".$this->id."',
 	convert_urls: false,".
 	($nframework->lang!='en-US'?
@@ -1017,9 +1012,7 @@ class inputfile extends baseInput{
 data-sequential-uploads="true" placeholder="Arrastra hasta aqui para subir archivos"
 data-role="file" data-button-title="<span class=\'mif-folder\'></span>"
 data-form-data=\'{"mid":"' . $this->id . '"}\'/>
-		<div data-role="progress" id="'.$this->id.'_progress" data-type="buffer" data-value="0" data-buffer="100" data-small="true"></div>
-		<div id="'.$this->id.'_preview" style="overflow-y: auto;overflow-x: hidden;height:200px">
-		</div>';
+		<div data-role="progress" id="'.$this->id.'_progress" data-type="buffer" data-value="0" data-buffer="100" data-small="true"></div>		';
 
 
 

@@ -149,30 +149,50 @@ $router->addRoute('/images/config/[i:size]/logo.png', function(string $route,arr
     echo file_get_contents($dst);
 },'GET');
 
-$router->addRoute('/images/preview/pdf/[s:id]/[i:w]/[i:h]/[i:p].png', function(string $route,array $p){
-	$upload = $_SESSION['uploads4'][$p['id']];
-	$filename=$upload['extensioninfo']['path'];
-	$extension = pathinfo($filename, PATHINFO_EXTENSION);
-	
-	$dst=sys_get_temp_dir().'/'.uniqid('pdftopng',true);
-	mkdir($dst);
-	$pdf = new \Spatie\PdfToImage\Pdf($filename);
-	$pdf->format(\Spatie\PdfToImage\Enums\OutputFormat::Png);
-	$pdf->selectPage($p['p'])->size($p['w'])->save($dst);
-	
-/*	header('dst:'.$dst);
-	header('dstf:'.$filename);
-	header('dstp:'.$p['p']);//*/
-	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-	header("Cache-Control: post-check=0, pre-check=0", false);
-	header("Pragma: no-cache");
-	header('Content-Length: '.filesize($dst.'/'.$p['p'].'.png'));
-    header('Content-Type: image/png');
-    echo file_get_contents($dst.'/'.$p['p'].'.png');	
-	unlink($dst.'/'.$p['p'].'.png');
-	rmdir($dst);
+$router->addRoute('/images/frompdf/[s:id]/[i:w]/[i:h]/[i:p].png', function(string $route,array $p){
+	$options = $_SESSION['frompdf'][$p['id']];
+	if(file_exists($options['filename'])){
+		$pdf = new \Spatie\PdfToImage\Pdf($options['filename']);
+		mkdir($options['directory']);
+		$pdf->format(\Spatie\PdfToImage\Enums\OutputFormat::Png);
+		$pdf->selectPage($p['p'])->size($p['w'])->save($options['directory'].$p['p'].'.png');
+		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+		header('Content-Length: '.filesize($options['directory'].'/'.$p['p'].'.png'));
+	    header('Content-Type: image/png');
+	    echo file_get_contents($options['directory'].'/'.$p['p'].'.png');	
+	    if(!empty($options['deletefile'])&&$options['deletefile']==true){
+			unlink($options['directory'].'/'.$p['p'].'.png');
+		}
+		if(!empty($options['deletedirectory'])&&$options['deletedirectory']==true){
+			rmdir($options['directory']);
+		}
+	}
 	
 },'GET');
+
+$router->addRoute('/images/frompdf/[s:id]/info.json', function(string $route,array $p){
+	global $nframework;
+	$nframework->isAjax=false;
+	$options = $_SESSION['frompdf'][$p['id']];
+	if(file_exists($options['filename'])){
+		$pdf = new \Spatie\PdfToImage\Pdf($options['filename']);
+		$size = $pdf->getSize();
+		$result=[
+			'numberOfPages' => $pdf->pageCount(),
+			'width' => $size->width,
+			'height' => $size->height,
+		];
+		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+		header('Content-Type: application/json');
+		echo json_encode($result);
+	}
+	
+},'GET');
+
 $router->addRoute('/images/[s:id]/[i:w]/[i:h]/preview.png', function(string $route,array $p){
 	$upload = $_SESSION['uploads4'][$p['id']];
 	$filename=$upload['extensioninfo']['path'];

@@ -52,7 +52,7 @@ function ifset($array,$key):mixed{
 class class_config implements ArrayAccess {
 	private array $contenedor;
 	public function __construct(){
-		require 'config.php';
+		require __DIR__.'/config.php';
 		$this->contenedor=(array)$config;
 		
 		$this->contenedor['images']['config']['logo']=(empty($this->contenedor['image'])?'https://www.nlared.com/img/nlaredlogo5.png':$this->contenedor['image']);
@@ -117,6 +117,7 @@ class class_nframework{
 	public String $lang_;
 	public String $langshort;
 	public array $languages;
+	public $shutdown;
 	//public String $language;
 	private array $config;
 	private array $counters=[];
@@ -132,6 +133,7 @@ class class_nframework{
 	public String $body_addtag='';
 	public String $html_addtag='';
 	public function __construct(){
+		$this->shutdown=true;
 		$this->include_path=__DIR__;
 		$this->api_path=$_SERVER['DOCUMENT_ROOT'].'/nframework';
 		if	(!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])){
@@ -487,7 +489,7 @@ function notify($title='nlared.com',$text='',$options=[]){
 function nfshutdown(){
 	global $nframework,$noobfuscate,$buffer,$developermode,$javas,$result,$config;
 	$last_error = error_get_last();
-	if ($last_error['type'] === E_ERROR || $last_error['type'] ===E_USER_ERROR) {
+	if (!empty($last_error)&&( $last_error['type'] === E_ERROR || $last_error['type'] ===E_USER_ERROR)) {
 		nferrorhandler(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
 		if($developermode){
 			if(php_sapi_name() == 'cli'){
@@ -637,7 +639,7 @@ function nfshutdown(){
 	}
 }
 //$buffer='';
-if( php_sapi_name() != "cli"){
+if( php_sapi_name() != "cli"&& empty($nfshutdowndisable)){
 	register_shutdown_function('nfshutdown');
 }
 function nfjavaobfuscate($mbuffer):string{
@@ -654,7 +656,7 @@ function nfjavaobfuscate($mbuffer):string{
 	$buffer.=$mbuffer;
 	return '';
 }
-if( php_sapi_name() != "cli"){
+if( php_sapi_name() != "cli"&& empty($nfjavaobfuscatedisable)){
 	ob_start("nfjavaobfuscate");
 }
 

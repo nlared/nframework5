@@ -691,6 +691,7 @@ hugerte.PluginManager.add('myPlugin', function(editor, url) {
 class textArea extends baseInput {
 	var $uppercase;
 	var $charscounter;
+	var $spellcheck=true;
 	var $charscountertemplate;
     public function __toString() {
     	$_SESSION['ANTIXSS'][($this->id)]=['html'];
@@ -698,6 +699,7 @@ class textArea extends baseInput {
         $this->name . '" id="' . $this->id . '"' . $this->addtag .
     	($this->required ? ' required="required"' : '') .
 		($this->readonly ? ' readonly="readonly"' : '') .
+		($this->spellcheck ? ' spellcheck="true"' : '') .
 		($this->placeholder ? ' placeholder="'.$this->placeholder.'"' : '') .   
 		' data-validate="'.$this->data_validate().'"'.
 		($this->uppercase ? ' uppercase="true"' : '').
@@ -806,21 +808,36 @@ class Select extends baseOptions {
 }
 //############################################ S T A R T ##################################################
 //######################## AGREGUE PARA PONER ICONOS EN LAS OPCIONES DE LOS SELECT########################
-function nflistoptionsIcons($options,$selected=[]){
-	if(!is_array($selected)){
-		$selected=[0=>$selected];
-	}
-	foreach($options as $value=>$text){
-		if(is_array($text)){
-			$result.='<option value="' . $value . '" data-template="'.$text['icon'].'" ' .(in_array($value, $selected) ? ' selected>' : '>') . $text['datashow'] . '</option>';
-			//$result.= '<optgroup label="'.$value.'">'.nflistoptions($text,$selected).'</optgroup>';
-		}else{
-			$result.='<option value="' . $value . '"' .(in_array($value, $selected) ? ' selected>' : '>') . $text . '</option>';
-       
-			//$result.='<option value="' . $value . '"' . ($value == $selected ? ' selected>' : '>') . $text . '</option>';
-		}
-	}
-	return $result;
+function nflistoptionsIcons($options, $selected = []) {
+    if (!is_array($selected)) {
+        $selected = [0 => $selected];
+    }
+
+    $result = '';
+
+    foreach ($options as $key => $value) {
+        if (is_array($value) && isset($value['group'])) {
+            // Si es un grupo de opciones
+            $result .= '<optgroup label="' . htmlspecialchars($value['group']) . '">';
+            foreach ($value['options'] as $optionValue => $optionText) {
+                if (is_array($optionText)) {
+                    $result .= '<option value="' . htmlspecialchars($optionValue) . '" data-template="' . htmlspecialchars($optionText['icon']) . '"' . (in_array($optionValue, $selected) ? ' selected>' : '>') . htmlspecialchars($optionText['datashow']) . '</option>';
+                } else {
+                    $result .= '<option value="' . htmlspecialchars($optionValue) . '"' . (in_array($optionValue, $selected) ? ' selected>' : '>') . htmlspecialchars($optionText) . '</option>';
+                }
+            }
+            $result .= '</optgroup>';
+        } else {
+            // Si no es un grupo de opciones
+            if (is_array($value)) {
+                $result .= '<option value="' . htmlspecialchars($key) . '" data-template="' . htmlspecialchars($value['icon']) . '"' . (in_array($key, $selected) ? ' selected>' : '>') . htmlspecialchars($value['datashow']) . '</option>';
+            } else {
+                $result .= '<option value="' . htmlspecialchars($key) . '"' . (in_array($key, $selected) ? ' selected>' : '>') . htmlspecialchars($value) . '</option>';
+            }
+        }
+    }
+
+    return $result;
 }
 
 class SelectIcon extends baseOptions {
@@ -1107,14 +1124,13 @@ data-form-data=\'{"mid":"' . $this->id . '"}\'/><div id="' . $this->id . '_list"
 }
 
 class mapmarker extends baseInput{
+	public const GeoJSON = 0x02;
 //	public $latitude;
 //	public $longitude;
 	public $onchange;
+	public $type;
 	public $height=500;
-	public $value=[
-		'lat'=>'',
-		'lng'=>''
-		];
+	public $value;
 	public $startpoint=[
 		'lat'=>25.43328030,
 		'lng'=>-100.96047970,
@@ -1137,8 +1153,22 @@ class mapmarker extends baseInput{
 	crossorigin=""/>';
 	
    
-	$lat=($this->value['lat']!=''?$this->value['lat']:$this->startpoint['lat']);
-    $lng=($this->value['lng']!=''?$this->value['lng']:$this->startpoint['lng']);
+	//$lat=($this->value['lat']!=''?$this->value['lat']:$this->startpoint['lat']);
+   // $lng=($this->value['lng']!=''?$this->value['lng']:$this->startpoint['lng']);
+    
+    if(empty($this->value)){
+    	$lat=$this->startpoint['lat'];
+    	$lng=$this->startpoint['lng'];
+    }else{
+    	if($this->type==self::GeoJSON){
+    		$lat=$this->value['coordinates']['0'];
+    		$lng=$this->value['coordinates']['1'];
+    	}else{
+    		$lat=$this->value['lat'];
+    		$lng=$this->value['lng'];
+    	}
+    }
+    
 	$javas->addjs("
 		var startPoint = [$lat,$lng];
 		maps['".$this->id."_map'] = L.map('".$this->id."_map', {editable: true}).setView(startPoint, 16),
@@ -1163,6 +1193,9 @@ class mapmarker extends baseInput{
 		<input name="' . $this->name . '[lat]" id="' . $this->id . '_lat" type="text" value="'.$lat.'">
 		<input name="' . $this->name . '[lng]" id="' . $this->id . '_lng" type="text" value="'.$lng.'" >
 		';
+	}
+	public function __toMongo($val){
+		return ($this->type==self::GeoJSON?['type'=> "Point", 'coordinates'=> [ $val['lat'], $val['lng'] ]]:$val);
 	}
 }
 

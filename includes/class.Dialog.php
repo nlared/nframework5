@@ -29,8 +29,7 @@ class Dialog{
 JAVA;
 		
 		$javas->addjs($java);
-		
-		return '<dialog id="'.$this->id.'">
+		return '<dialog id="'.$this->id.'" style="position: absolute; float: left; left: 50%; top: 50%; transform: translate(-50%, -50%);">
 	<form id="'.$this->id.'_form">
 		<input type="hidden" name="op" id="'.$this->id.'_op" value="agregar">
 		<input type="hidden" name="pos" id="'.$this->id.'_pos" value="">

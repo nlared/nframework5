@@ -71,7 +71,7 @@ function syscalls() {
       }
     });
 }
-setInterval(syscalls, 10000);
+//setInterval(syscalls, 10000);
 
 
 $(window).scroll(function(){
